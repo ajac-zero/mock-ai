@@ -1,12 +1,29 @@
-from fastapi import FastAPI
+from time import time
 
-from .clients.openai_client import OpenAI
+from fastapi import FastAPI
+from pydantic import BaseModel
 
 app = FastAPI()
 
-client = OpenAI()
+
+class Message(BaseModel):
+    role: str
+    content: str
 
 
-@app.post("/chat/completions/create")
-def create(message):
-    client.chat.completions.create()
+class ChatCompletionsRequest(BaseModel):
+    model: str
+    messages: list[Message]
+
+
+@app.post("/chat/completions")
+def chat_completions_create(request: ChatCompletionsRequest):
+    content = request.messages[-1].content
+    response = {
+        "id": "Null",
+        "choices": [{"message": {"role": "user", "content": content}}],
+        "created": time(),
+        "model": request.model,
+        "object": "chat.completion",
+    }
+    return response
