@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "mock-ai"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pydantic = "^2.7.4"
+fastapi = { extras = ["standard"], version = "^0.111.0" }
+
+
+[tool.poetry.group.dev.dependencies]
+openai = "^1.35.1"
+pytest = "^8.2.2"
+ruff = "^0.4.9"
+
+[tool.pytest.ini_options]
+pythonpath = ["mock_ai"]
+
+[tool.ruff.lint]
+extend-select = ["I"]
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
