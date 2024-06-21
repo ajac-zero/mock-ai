@@ -46,7 +46,10 @@ def _normal_function_call(request: ChatCompletionsRequest):
                         {
                             "id": "Null",
                             "type": "function",
-                            "function": {"arguments": {"mock": "mock"}, "name": "mock"},
+                            "function": {
+                                "arguments": {"mock": "mock"},
+                                "name": "mock",
+                            },
                         }
                     ],
                 }
@@ -74,8 +77,7 @@ def _streaming_response(request: ChatCompletionsRequest):
 
 
 def _streaming_function_call(request: ChatCompletionsRequest):
-    content = request.messages[-1].content
-    for char in content:
+    for char in "mock":
         chunk = {
             "id": "Null",
             "object": "chat.completion.chunk",
@@ -83,7 +85,7 @@ def _streaming_function_call(request: ChatCompletionsRequest):
             "model": request.model,
             "choices": [
                 {
-                    "message": {
+                    "delta": {
                         "role": "assistant",
                         "content": None,
                         "tool_calls": [
@@ -91,7 +93,7 @@ def _streaming_function_call(request: ChatCompletionsRequest):
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                    "arguments": {"mock": "mock"},
+                                    "arguments": {"mock": char},
                                     "name": "mock",
                                 },
                             }
@@ -106,10 +108,11 @@ def _streaming_function_call(request: ChatCompletionsRequest):
 
 @app.post("/chat/completions")
 def chat_completions_create(request: ChatCompletionsRequest):
-    if request.stream:
-        return StreamingResponse(_streaming_response(request))
-    else:
-        if "func" in request.messages[-1].content.lower():
-            return _normal_function_call(request)
+    if request.messages and request.messages[-1]:
+        if request.stream:
+            return StreamingResponse(_streaming_response(request))
         else:
-            return _normal_response(request)
+            if "func" in request.messages[-1].content.lower():
+                return _normal_function_call(request)
+            else:
+                return _normal_response(request)
