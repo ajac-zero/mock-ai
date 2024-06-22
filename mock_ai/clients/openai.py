@@ -3,17 +3,19 @@ from importlib.util import find_spec
 
 __all__ = []
 
+ENDPOINT = "http://localhost:8000"
+API_KEY = "mock!"
 
 if find_spec("openai"):
     from openai import OpenAI as OriginalOpenAI
 
-    OpenAI = partial(OriginalOpenAI, base_url="http://localhost:8000", api_key="Mock!")
+    OpenAI = partial(OriginalOpenAI, base_url=ENDPOINT, api_key=API_KEY)
 
     __all__.append("OpenAI")
 
 if find_spec("mistralai"):
-    from mistralai.client import MistralClient as OriginalMistralClient
+    from mistralai.client import MistralClient as OriginalMistral
 
-    MistralClient = find_spec(OriginalMistralClient, base_url="http://localhost:8000", api_key="Mock!")
+    MistralClient = partial(OriginalMistral, endpoint=ENDPOINT, api_key=API_KEY)
 
     __all__.append("MistralClient")

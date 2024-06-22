@@ -26,10 +26,17 @@ def _normal_response(request: ChatCompletionsRequest):
     content = request.messages[-1].content
     response = {
         "id": "Null",
-        "choices": [{"message": {"role": "assistant", "content": content}}],
-        "created": time(),
+        "choices": [
+            {
+                "index": 0,
+                "message": {"role": "assistant", "content": content},
+                "finish_reason": "stop",
+            }
+        ],
+        "created": int(time()),
         "model": request.model,
         "object": "chat.completion",
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
     }
     return response
 
@@ -39,25 +46,28 @@ def _normal_function_call(request: ChatCompletionsRequest):
         "id": "Null",
         "choices": [
             {
+                "index": 0,
                 "message": {
                     "role": "assistant",
-                    "content": None,
+                    "content": "None",
                     "tool_calls": [
                         {
                             "id": "Null",
                             "type": "function",
                             "function": {
-                                "arguments": {"mock": "mock"},
+                                "arguments": str({"mock": "mock"}),
                                 "name": "mock",
                             },
                         }
                     ],
-                }
+                },
+                "finish_reason": "tool_calls",
             }
         ],
-        "created": time(),
+        "created": int(time()),
         "model": request.model,
         "object": "chat.completion",
+        "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
     }
     return response
 
@@ -68,9 +78,15 @@ def _streaming_response(request: ChatCompletionsRequest):
         chunk = {
             "id": "Null",
             "object": "chat.completion.chunk",
-            "created": time(),
+            "created": int(time()),
             "model": request.model,
-            "choices": [{"delta": {"content": char, "role": "assistant"}}],
+            "choices": [
+                {
+                    "index": 0,
+                    "delta": {"content": char, "role": "assistant"},
+                    "finish_reason": "stop",
+                }
+            ],
         }
         yield f"data: {dumps(chunk)}\n\n"
     yield "data: [DONE]\n\n"
@@ -81,10 +97,11 @@ def _streaming_function_call(request: ChatCompletionsRequest):
         chunk = {
             "id": "Null",
             "object": "chat.completion.chunk",
-            "created": time(),
+            "created": int(time()),
             "model": request.model,
             "choices": [
                 {
+                    "index": 0,
                     "delta": {
                         "role": "assistant",
                         "content": None,
@@ -93,12 +110,13 @@ def _streaming_function_call(request: ChatCompletionsRequest):
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                    "arguments": {"mock": char},
+                                "arguments": str({"mock": "mock"}),
                                     "name": "mock",
                                 },
                             }
                         ],
-                    }
+                    },
+                    "finish_reason": "tool_calls",
                 }
             ],
         }
@@ -107,10 +125,14 @@ def _streaming_function_call(request: ChatCompletionsRequest):
 
 
 @app.post("/chat/completions")
+@app.post("/v1/chat/completions")
 def chat_completions_create(request: ChatCompletionsRequest):
     if request.messages and request.messages[-1]:
         if request.stream:
-            return StreamingResponse(_streaming_response(request))
+            if "func" in request.messages[-1].content.lower():
+                return StreamingResponse(_streaming_function_call(request))
+            else:
+                return StreamingResponse(_streaming_response(request))
         else:
             if "func" in request.messages[-1].content.lower():
                 return _normal_function_call(request)
