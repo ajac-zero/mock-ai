@@ -1,9 +1,9 @@
 from json import dumps
 from time import time
-from typing import Optional
+from typing import Optional, cast
 
 from fastapi import FastAPI
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 from starlette.responses import StreamingResponse
 
 app = FastAPI()
@@ -16,16 +16,27 @@ class Message(BaseModel):
 
 class ChatCompletionsRequest(BaseModel):
     model: str
-    messages: list[Message]
+    message: Optional[str] = None
+    messages: Optional[list[Message]] = None
+    chat_history: Optional[list[Message]] = None
     stream: Optional[bool] = False
     tools: Optional[dict] = None
     tool_choice: Optional[str] = None
 
+    model_config = ConfigDict(extra="allow")
+
 
 def _normal_response(request: ChatCompletionsRequest):
-    content = request.messages[-1].content
+    if request.messages:
+        content = request.messages[-1].content
+    elif request.message:
+        content = request.message
+    else:
+        raise ValueError("Either message or messages should be present")
     response = {
         "id": "Null",
+        "text": content,
+        "generation_id": "Null",
         "choices": [
             {
                 "index": 0,
@@ -44,6 +55,8 @@ def _normal_response(request: ChatCompletionsRequest):
 def _normal_function_call(request: ChatCompletionsRequest):
     response = {
         "id": "Null",
+        "text": "None",
+        "generation_id": "Null",
         "choices": [
             {
                 "index": 0,
@@ -68,11 +81,13 @@ def _normal_function_call(request: ChatCompletionsRequest):
         "model": request.model,
         "object": "chat.completion",
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
+        "tool_calls": [{"name": "mock", "parameter": {"mock": "mock"}}],
     }
     return response
 
 
 def _streaming_response(request: ChatCompletionsRequest):
+    request.messages = cast(list[Message], request.messages)
     content = request.messages[-1].content
     for char in content:
         chunk = {
@@ -110,7 +125,7 @@ def _streaming_function_call(request: ChatCompletionsRequest):
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                "arguments": str({"mock": "mock"}),
+                                    "arguments": str({"mock": char}),
                                     "name": "mock",
                                 },
                             }
@@ -119,11 +134,13 @@ def _streaming_function_call(request: ChatCompletionsRequest):
                     "finish_reason": "tool_calls",
                 }
             ],
+            "tool_calls": [{"name": "mock", "parameter": {"mock": "mock"}}],
         }
         yield f"data: {dumps(chunk)}\n\n"
     yield "data: [DONE]\n\n"
 
 
+@app.post("/chat")
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
 def chat_completions_create(request: ChatCompletionsRequest):
@@ -135,6 +152,17 @@ def chat_completions_create(request: ChatCompletionsRequest):
                 return StreamingResponse(_streaming_response(request))
         else:
             if "func" in request.messages[-1].content.lower():
+                return _normal_function_call(request)
+            else:
+                return _normal_response(request)
+    elif request.message:
+        if request.stream:
+            if "func" in request.message.lower():
+                return _normal_function_call(request)
+            else:
+                return _normal_response(request)
+        else:
+            if "func" in request.message.lower():
                 return _normal_function_call(request)
             else:
                 return _normal_response(request)

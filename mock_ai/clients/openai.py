@@ -19,3 +19,10 @@ if find_spec("mistralai"):
     MistralClient = partial(OriginalMistral, endpoint=ENDPOINT, api_key=API_KEY)
 
     __all__.append("MistralClient")
+
+if find_spec("cohere"):
+    from cohere import Client as OriginalCohereClient
+
+    Client = partial(OriginalCohereClient, base_url=ENDPOINT, api_key=API_KEY)
+
+    __all__.append("Client")
