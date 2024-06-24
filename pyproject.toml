@@ -13,7 +13,11 @@ fastapi = { extras = ["standard"], version = "^0.111.0" }
 typer = {extras = ["all"], version = "^0.12.3"}
 
 [tool.poetry.scripts]
-mock-ai = "mock_ai.cli:cli"
+mock-ai = "mockai.cli:cli"
+
+[tool.poe.tasks]
+test.script = "scripts:test"
+format.script = "scripts:format"
 
 [tool.poetry.group.dev.dependencies]
 openai = "^1.35.1"
@@ -21,9 +25,10 @@ pytest = "^8.2.2"
 ruff = "^0.4.9"
 mistralai = "^0.4.1"
 cohere = "^5.5.8"
+poethepoet = "^0.26.1"
 
 [tool.pytest.ini_options]
-pythonpath = ["mock_ai"]
+pythonpath = ["mockai"]
 
 [tool.ruff.lint]
 extend-select = ["I"]

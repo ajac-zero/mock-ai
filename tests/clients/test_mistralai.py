@@ -10,7 +10,7 @@ from mistralai.models.chat_completion import (
     ToolCall,
 )
 
-from mock_ai.clients.mistralai import MistralClient as MockMistral
+from mockai.clients.mistralai import MistralClient as MockMistral
 
 
 @pytest.fixture

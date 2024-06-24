@@ -8,7 +8,7 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, ChoiceDeltaToolCall
 
-from mock_ai.clients.openai import OpenAI as MockOpenAI
+from mockai.clients.openai import OpenAI as MockOpenAI
 
 
 @pytest.fixture

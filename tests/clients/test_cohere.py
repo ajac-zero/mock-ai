@@ -6,7 +6,7 @@ from cohere.types import (
     ToolCall,
 )
 
-from mock_ai.clients.cohere import Client as MockClient
+from mockai.clients.cohere import Client as MockClient
 
 
 @pytest.fixture

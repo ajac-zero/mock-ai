@@ -1,7 +1,7 @@
 from json import dumps
 from time import time
 
-from mock_ai.server.models import ChatCompletionsRequest
+from mockai.server.models import ChatCompletionsRequest
 
 __all__ = [
     "_normal_response",

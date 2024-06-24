@@ -1,7 +1,7 @@
 import sys
 from types import ModuleType
 
-from mock_ai.clients import cohere, mistralai, openai
+from mockai.clients import cohere, mistralai, openai
 
 clients = [
     (openai, ["OpenAI", "Client"]),
@@ -10,8 +10,8 @@ clients = [
 ]
 
 for sdk, client_classes in clients:
-    sdk_name = sdk.__name__.replace("mock_ai.clients.", "")
-    mod = ModuleType(f"mock_ai.{sdk_name}")
+    sdk_name = sdk.__name__.replace("mockai.clients.", "")
+    mod = ModuleType(f"mockai.{sdk_name}")
 
     sys.modules[mod.__name__] = mod
 

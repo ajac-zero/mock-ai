@@ -3,7 +3,7 @@ import time
 
 import pytest
 
-from mock_ai.constants import API_KEY, ENDPOINT
+from mockai.constants import API_KEY, ENDPOINT
 
 
 @pytest.fixture(scope="session")

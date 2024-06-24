@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from starlette.responses import StreamingResponse
 
-from mock_ai.server.models import ChatCompletionsRequest
-from mock_ai.server.responses import (
+from mockai.server.models import ChatCompletionsRequest
+from mockai.server.responses import (
     _normal_function_call,
     _normal_response,
     _streaming_function_call,
