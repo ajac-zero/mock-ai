@@ -6,12 +6,13 @@ from cohere.types import (
     ToolCall,
 )
 
-from mock_ai.clients import Client as MockClient
+from mock_ai.clients.cohere import Client as MockClient
+from mock_ai.constants import API_KEY, ENDPOINT
 
 
 @pytest.fixture
 def client():
-    return Client(base_url="http://localhost:8000", api_key="None")
+    return Client(base_url=ENDPOINT, api_key=API_KEY)
 
 
 @pytest.fixture

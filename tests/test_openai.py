@@ -8,12 +8,13 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, ChoiceDeltaToolCall
 
-from mock_ai.clients import OpenAI as MockOpenAI
+from mock_ai.clients.openai import OpenAI as MockOpenAI
+from mock_ai.constants import ENDPOINT, API_KEY
 
 
 @pytest.fixture
 def client():
-    return OpenAI(base_url="http://localhost:8000", api_key="None")
+    return OpenAI(base_url=ENDPOINT, api_key=API_KEY)
 
 
 @pytest.fixture

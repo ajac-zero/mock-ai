@@ -10,12 +10,13 @@ from mistralai.models.chat_completion import (
     ToolCall,
 )
 
-from mock_ai.clients import MistralClient as MockMistral
+from mock_ai.clients.mistralai import MistralClient as MockMistral
+from mock_ai.constants import ENDPOINT, API_KEY
 
 
 @pytest.fixture
 def client():
-    return MistralClient(endpoint="http://localhost:8000", api_key="None")
+    return MistralClient(endpoint=ENDPOINT, api_key=API_KEY)
 
 
 @pytest.fixture
