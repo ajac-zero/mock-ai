@@ -11,4 +11,3 @@ if find_spec("mistralai"):
     from mistralai.client import MistralClient as OriginalMistral
 
     MistralClient = partial(OriginalMistral, endpoint=ENDPOINT, api_key=API_KEY)
-

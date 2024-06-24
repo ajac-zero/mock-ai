@@ -1,12 +1,12 @@
 import sys
-
 from types import ModuleType
-from mock_ai.clients import openai, cohere, mistralai
+
+from mock_ai.clients import cohere, mistralai, openai
 
 clients = [
     (openai, ["OpenAI", "Client"]),
     (mistralai, ["MistralClient"]),
-    (cohere, ["Client"])
+    (cohere, ["Client"]),
 ]
 
 for sdk, client_classes in clients:

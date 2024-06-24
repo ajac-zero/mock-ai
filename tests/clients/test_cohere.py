@@ -7,12 +7,11 @@ from cohere.types import (
 )
 
 from mock_ai.clients.cohere import Client as MockClient
-from mock_ai.constants import API_KEY, ENDPOINT
 
 
 @pytest.fixture
-def client():
-    return Client(base_url=ENDPOINT, api_key=API_KEY)
+def client(endpoint, api_key):
+    return Client(base_url=endpoint, api_key=api_key)
 
 
 @pytest.fixture

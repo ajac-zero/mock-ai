@@ -1,3 +1,3 @@
-from mock_ai.clients import openai, cohere, mistralai
+from mock_ai.clients import cohere, mistralai, openai
 
 __all__ = ["openai", "mistralai", "cohere"]
