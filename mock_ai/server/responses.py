@@ -1,29 +1,14 @@
 from json import dumps
 from time import time
-from typing import Optional, cast
 
-from fastapi import FastAPI
-from pydantic import BaseModel, ConfigDict
-from starlette.responses import StreamingResponse
+from mock_ai.server.models import ChatCompletionsRequest
 
-app = FastAPI()
-
-
-class Message(BaseModel):
-    role: str
-    content: str
-
-
-class ChatCompletionsRequest(BaseModel):
-    model: str
-    message: Optional[str] = None
-    messages: Optional[list[Message]] = None
-    chat_history: Optional[list[Message]] = None
-    stream: Optional[bool] = False
-    tools: Optional[dict] = None
-    tool_choice: Optional[str] = None
-
-    model_config = ConfigDict(extra="allow")
+__all__ = [
+    "_normal_response",
+    "_normal_function_call",
+    "_streaming_response",
+    "_streaming_function_call",
+]
 
 
 def _normal_response(request: ChatCompletionsRequest):
@@ -87,8 +72,12 @@ def _normal_function_call(request: ChatCompletionsRequest):
 
 
 def _streaming_response(request: ChatCompletionsRequest):
-    request.messages = cast(list[Message], request.messages)
-    content = request.messages[-1].content
+    if request.messages:
+        content = request.messages[-1].content
+    elif request.message:
+        content = request.message
+    else:
+        raise ValueError("Either message or messages should be present")
     for char in content:
         chunk = {
             "id": "Null",
@@ -138,31 +127,3 @@ def _streaming_function_call(request: ChatCompletionsRequest):
         }
         yield f"data: {dumps(chunk)}\n\n"
     yield "data: [DONE]\n\n"
-
-
-@app.post("/chat")
-@app.post("/chat/completions")
-@app.post("/v1/chat/completions")
-def chat_completions_create(request: ChatCompletionsRequest):
-    if request.messages and request.messages[-1]:
-        if request.stream:
-            if "func" in request.messages[-1].content.lower():
-                return StreamingResponse(_streaming_function_call(request))
-            else:
-                return StreamingResponse(_streaming_response(request))
-        else:
-            if "func" in request.messages[-1].content.lower():
-                return _normal_function_call(request)
-            else:
-                return _normal_response(request)
-    elif request.message:
-        if request.stream:
-            if "func" in request.message.lower():
-                return _normal_function_call(request)
-            else:
-                return _normal_response(request)
-        else:
-            if "func" in request.message.lower():
-                return _normal_function_call(request)
-            else:
-                return _normal_response(request)
