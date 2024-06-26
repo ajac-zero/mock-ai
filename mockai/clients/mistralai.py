@@ -3,11 +3,13 @@ from importlib.util import find_spec
 
 from mockai.constants import API_KEY, ENDPOINT, NOT_AVAILABLE
 
-__all__ = ["MistralClient"]
+__all__ = ["MistralClient", "MistralAsyncClient"]
 
 MistralClient = NOT_AVAILABLE
 
 if find_spec("mistralai"):
-    from mistralai.client import MistralClient as OriginalMistral
+    from mistralai.async_client import MistralAsyncClient
+    from mistralai.client import MistralClient
 
-    MistralClient = partial(OriginalMistral, endpoint=ENDPOINT, api_key=API_KEY)
+    MistralClient = partial(MistralClient, endpoint=ENDPOINT, api_key=API_KEY)
+    MistralAsyncClient = partial(MistralAsyncClient, endpoint=ENDPOINT, api_key=API_KEY)

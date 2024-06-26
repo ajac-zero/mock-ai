@@ -9,8 +9,17 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 @cli.command()
-def start(port: int = 8100):
-    typer.echo(f"Starting MockAI server on port {port}...\n")
+def start(host: str = "127.0.0.1", port: int = 8100):
+    typer.echo(f"Starting MockAI server on http://{host}:{port}...\n")
     subprocess.run(
-        ["uvicorn", "--app-dir", f"{dir_path}", "server:app", "--port", f"{port}"]
+        [
+            "uvicorn",
+            "--app-dir",
+            f"{dir_path}",
+            "server:app",
+            "--host",
+            host,
+            "--port",
+            str(port),
+        ]
     )

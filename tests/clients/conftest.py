@@ -1,14 +1,18 @@
-import subprocess
 import time
+from multiprocessing import Process
 
 import pytest
+import uvicorn
 
-from mockai.constants import API_KEY, ENDPOINT
+from mockai.constants import API_KEY, ENDPOINT, PORT
+from mockai.server import app
 
 
-@pytest.fixture(scope="session")
+@pytest.fixture(scope="session", autouse=True)
 def mockai_server():
-    process = subprocess.Popen("mock-ai")
+    process = Process(target=lambda: uvicorn.run(app, port=PORT), daemon=True)
+    process.start()
+
     time.sleep(2)
 
     yield

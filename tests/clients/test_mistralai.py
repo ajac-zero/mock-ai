@@ -1,5 +1,4 @@
 import pytest
-from mistralai.client import MistralClient
 from mistralai.models.chat_completion import (
     ChatCompletionResponse,
     ChatCompletionResponseChoice,
@@ -10,17 +9,17 @@ from mistralai.models.chat_completion import (
     ToolCall,
 )
 
-from mockai.clients.mistralai import MistralClient as MockMistral
+from mockai.clients.mistralai import MistralAsyncClient, MistralClient
 
 
 @pytest.fixture
-def client(endpoint, api_key):
-    return MistralClient(endpoint=endpoint, api_key=api_key)
+def client():
+    return MistralClient()
 
 
 @pytest.fixture
 def mock():
-    return MockMistral()
+    return MistralAsyncClient()
 
 
 def test_mistral_chat_completion(client):
@@ -33,8 +32,9 @@ def test_mistral_chat_completion(client):
     assert isinstance(completion.choices[0].message.content, str)
 
 
-def test_mock_mistral_chat_completion(mock):
-    completion = mock.chat(
+@pytest.mark.asyncio
+async def test_mock_mistral_chat_completion(mock):
+    completion = await mock.chat(
         model="mock", messages=[{"role": "user", "content": "Hello!"}]
     )
     assert isinstance(completion, ChatCompletionResponse)
@@ -55,12 +55,13 @@ def test_mistral_chat_completion_stream(client):
     assert isinstance(completion.choices[0].delta.content, str)
 
 
-def test_mock_mistral_chat_completion_stream(mock):
+@pytest.mark.asyncio
+async def test_mock_mistral_chat_completion_stream(mock):
     response = mock.chat_stream(
         model="mock",
         messages=[{"role": "user", "content": "Hello!"}],
     )
-    completion = next(response)
+    completion = await anext(response)
     assert isinstance(completion, ChatCompletionStreamResponse)
     assert isinstance(completion.choices[0], ChatCompletionResponseStreamChoice)
     assert isinstance(completion.choices[0].delta, DeltaMessage)
@@ -77,8 +78,9 @@ def test_mistral_function_call(client):
     assert isinstance(completion.choices[0].message.tool_calls[0], ToolCall)  # type: ignore
 
 
-def test_mock_mistralai_function_call(mock):
-    completion = mock.chat(
+@pytest.mark.asyncio
+async def test_mock_mistralai_function_call(mock):
+    completion = await mock.chat(
         model="mock", messages=[{"role": "user", "content": "Function!"}]
     )
     assert isinstance(completion, ChatCompletionResponse)
@@ -102,12 +104,13 @@ def test_mistral_function_call_stream(client):
     )
 
 
-def test_mock_mistral_function_call_stream(mock):
+@pytest.mark.asyncio
+async def test_mock_mistral_function_call_stream(mock):
     response = mock.chat_stream(
         model="mock",
         messages=[{"role": "user", "content": "Function!"}],
     )
-    completion = next(response)
+    completion = await anext(response)
     assert isinstance(completion, ChatCompletionStreamResponse)
     assert isinstance(completion.choices[0], ChatCompletionResponseStreamChoice)
     assert isinstance(completion.choices[0].delta, DeltaMessage)
