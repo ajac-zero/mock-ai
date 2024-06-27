@@ -1,16 +1,25 @@
 import os
 import subprocess
+from typing import Annotated, Optional
 
-import typer
+from typer import Argument, FileText, Typer, echo
 
-cli = typer.Typer()
+cli = Typer()
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
 @cli.command()
-def start(host: str = "127.0.0.1", port: int = 8100):
-    typer.echo(f"Starting MockAI server on http://{host}:{port}...\n")
+def start(
+    responses: Annotated[Optional[FileText], Argument()] = None,
+    host: str = "127.0.0.1",
+    port: int = 8100,
+):
+    if responses:
+        echo(f"Reading {responses.name}...\n")
+        os.environ["MOCKAI_RESPONSES"] = responses.read()
+
+    echo(f"Starting MockAI server on http://{host}:{port}...\n")
     subprocess.run(
         [
             "uvicorn",

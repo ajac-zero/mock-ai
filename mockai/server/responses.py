@@ -1,8 +1,6 @@
 from json import dumps
 from time import time
 
-from mockai.server.models import ChatCompletionsRequest
-
 __all__ = [
     "_normal_response",
     "_normal_function_call",
@@ -11,13 +9,7 @@ __all__ = [
 ]
 
 
-def _normal_response(request: ChatCompletionsRequest):
-    if request.messages:
-        content = request.messages[-1].content
-    elif request.message:
-        content = request.message
-    else:
-        raise ValueError("Either message or messages should be present")
+def _normal_response(content: str, model: str):
     response = {
         "id": "Null",
         "text": content,
@@ -30,14 +22,14 @@ def _normal_response(request: ChatCompletionsRequest):
             }
         ],
         "created": int(time()),
-        "model": request.model,
+        "model": model,
         "object": "chat.completion",
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
     }
     return response
 
 
-def _normal_function_call(request: ChatCompletionsRequest):
+def _normal_function_call(name: str, arguments: dict, model: str):
     response = {
         "id": "Null",
         "text": "None",
@@ -53,8 +45,8 @@ def _normal_function_call(request: ChatCompletionsRequest):
                             "id": "Null",
                             "type": "function",
                             "function": {
-                                "arguments": str({"mock": "mock"}),
-                                "name": "mock",
+                                "arguments": dumps(arguments),
+                                "name": name,
                             },
                         }
                     ],
@@ -63,7 +55,7 @@ def _normal_function_call(request: ChatCompletionsRequest):
             }
         ],
         "created": int(time()),
-        "model": request.model,
+        "model": model,
         "object": "chat.completion",
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
         "tool_calls": [{"name": "mock", "parameter": {"mock": "mock"}}],
@@ -71,19 +63,13 @@ def _normal_function_call(request: ChatCompletionsRequest):
     return response
 
 
-def _streaming_response(request: ChatCompletionsRequest):
-    if request.messages:
-        content = request.messages[-1].content
-    elif request.message:
-        content = request.message
-    else:
-        raise ValueError("Either message or messages should be present")
+def _streaming_response(content: str, model: str):
     for char in content:
         chunk = {
             "id": "Null",
             "object": "chat.completion.chunk",
             "created": int(time()),
-            "model": request.model,
+            "model": model,
             "choices": [
                 {
                     "index": 0,
@@ -96,13 +82,13 @@ def _streaming_response(request: ChatCompletionsRequest):
     yield "data: [DONE]\n\n"
 
 
-def _streaming_function_call(request: ChatCompletionsRequest):
-    for char in "mock":
+def _streaming_function_call(name: str, arguments: dict, model: str):
+    for _ in name:
         chunk = {
             "id": "Null",
             "object": "chat.completion.chunk",
             "created": int(time()),
-            "model": request.model,
+            "model": model,
             "choices": [
                 {
                     "index": 0,
@@ -114,8 +100,8 @@ def _streaming_function_call(request: ChatCompletionsRequest):
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                    "arguments": str({"mock": char}),
-                                    "name": "mock",
+                                    "arguments": dumps(arguments),
+                                    "name": name,
                                 },
                             }
                         ],

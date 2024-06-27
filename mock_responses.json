@@ -1,0 +1,13 @@
+{
+  "Hello?": {
+    "type": "completion",
+    "content": "How are ya!"
+  },
+  "What's the weather in San Fran": {
+    "type": "function",
+    "name": "get_weather",
+    "arguments": {
+      "weather": "42 degrees Fahrenheit"
+    }
+  }
+}
