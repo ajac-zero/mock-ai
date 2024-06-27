@@ -20,6 +20,16 @@ def test_openai_chat_completion(client):
     assert isinstance(completion.choices[0].message.content, str)
 
 
+@pytest.mark.parametrize("client", [OpenAI(), Client()])
+def test_openai_chat_programmed_completion(client):
+    completion = client.chat.completions.create(
+        model="mock", messages=[{"role": "user", "content": "Hello?"}]
+    )
+    assert isinstance(completion, ChatCompletion)
+    assert isinstance(completion.choices[0].message, ChatCompletionMessage)
+    assert completion.choices[0].message.content == "How are ya!"
+
+
 @pytest.mark.asyncio
 @pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
 async def test_async_openai_chat_completion(client):
@@ -29,6 +39,22 @@ async def test_async_openai_chat_completion(client):
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
     assert isinstance(completion.choices[0].message.content, str)
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+async def test_async_openai_chat_programmed_completion(client):
+    completion = await client.chat.completions.create(
+        model="mock",
+        messages=[{"role": "user", "content": "What's the weather in San Fran"}],
+    )
+    assert isinstance(completion, ChatCompletion)
+    assert isinstance(completion.choices[0].message, ChatCompletionMessage)
+    assert completion.choices[0].message.tool_calls[0].function.name == "get_weather"  # type: ignore
+    assert (
+        completion.choices[0].message.tool_calls[0].function.arguments  # type: ignore
+        == """{"weather": "42 degrees Fahrenheit"}"""
+    )
 
 
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
@@ -54,6 +80,19 @@ async def test_async_openai_chat_completion_stream(client):
 
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
 def test_openai_function_call(client):
+    completion = client.chat.completions.create(
+        model="mock", messages=[{"role": "user", "content": "Function!"}]
+    )
+    assert isinstance(completion, ChatCompletion)
+    assert isinstance(completion.choices[0].message, ChatCompletionMessage)
+    assert isinstance(
+        completion.choices[0].message.tool_calls[0],  # type: ignore
+        ChatCompletionMessageToolCall,
+    )
+
+
+@pytest.mark.parametrize("client", [OpenAI(), Client()])
+def test_openai_programmed_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Function!"}]
     )

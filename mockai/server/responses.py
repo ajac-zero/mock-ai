@@ -58,7 +58,7 @@ def _normal_function_call(name: str, arguments: dict, model: str):
         "model": model,
         "object": "chat.completion",
         "usage": {"prompt_tokens": 0, "completion_tokens": 0, "total_tokens": 0},
-        "tool_calls": [{"name": "mock", "parameter": {"mock": "mock"}}],
+        "tool_calls": [{"name": name, "parameters": arguments}],
     }
     return response
 
@@ -109,7 +109,7 @@ def _streaming_function_call(name: str, arguments: dict, model: str):
                     "finish_reason": "tool_calls",
                 }
             ],
-            "tool_calls": [{"name": "mock", "parameter": {"mock": "mock"}}],
+            "tool_calls": [{"name": name, "parameters": arguments}],
         }
         yield f"data: {dumps(chunk)}\n\n"
     yield "data: [DONE]\n\n"

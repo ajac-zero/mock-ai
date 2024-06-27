@@ -24,6 +24,12 @@ def test_cohere_chat_completion(client):
     assert isinstance(completion.text, str)
 
 
+def test_cohere_chat_programmed_completion(client):
+    completion = client.chat(model="mock", message="Hello?")
+    assert isinstance(completion, NonStreamedChatResponse)
+    assert completion.text == "How are ya!"
+
+
 @pytest.mark.asyncio
 async def test_async_cohere_chat_completion(async_client):
     completion = await async_client.chat(model="mock", message="helloooo")
@@ -53,6 +59,16 @@ def test_cohere_function_call(client):
     )
     assert isinstance(completion, NonStreamedChatResponse)
     assert isinstance(completion.tool_calls[0], ToolCall)  # type: ignore
+
+
+def test_cohere_programmed_function_call(client):
+    completion = client.chat(
+        model="mock",
+        message="What's the weather in San Fran",
+    )
+    assert isinstance(completion, NonStreamedChatResponse)
+    assert completion.tool_calls[0].name == "get_weather"  # type: ignore
+    assert completion.tool_calls[0].parameters == {"weather": "42 degrees Fahrenheit"}  # type: ignore
 
 
 @pytest.mark.asyncio
