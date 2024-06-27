@@ -2,7 +2,7 @@ import json
 import os
 from warnings import warn
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from starlette.exceptions import HTTPException
 from starlette.responses import StreamingResponse
 
@@ -20,18 +20,21 @@ app = FastAPI()
 @app.post("/chat")
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
-def chat_completions_create(request: ChatCompletionsRequest):
-    if request.messages:
-        content = request.messages[-1].content
-    elif request.message:
-        content = request.message
+def chat_completions_create(request: Request, data: ChatCompletionsRequest):
+    if data.messages:
+        content = data.messages[-1].content
+    elif data.message:
+        content = data.message
     else:
         raise HTTPException(400, "No message content was found.")
 
     responses = os.getenv("MOCKAI_RESPONSES")
 
     FUNCTION_CALL = True if "func" in content.lower() else False
-    STREAM = request.stream
+    STREAM = data.stream
+
+    if request.url._url[-4:] == "chat":
+        STREAM = False
 
     name = "mock_function"
     arguments = {"mock_arg": "mock_var"}
@@ -64,7 +67,7 @@ def chat_completions_create(request: ChatCompletionsRequest):
         except KeyError:
             warn("No matching response found in JSON file, using default values...")
 
-    model = request.model if request.model is not None else "mock-model"
+    model = data.model if data.model is not None else "mock-model"
     options = (FUNCTION_CALL, STREAM)
 
     match options:
