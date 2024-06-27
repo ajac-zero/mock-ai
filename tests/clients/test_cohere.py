@@ -19,10 +19,7 @@ def async_client():
 
 
 def test_cohere_chat_completion(client):
-    completion = client.chat(
-        model="mock",
-        message="helloooo",
-    )
+    completion = client.chat(model="mock", message="helloooo")
     assert isinstance(completion, NonStreamedChatResponse)
     assert isinstance(completion.text, str)
 
