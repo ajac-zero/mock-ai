@@ -35,7 +35,9 @@ def _normal_function_call(name: str, arguments: dict, model: str):
     response = {
         "id": "Null",
         "text": "None",
-        "content": [{"type": "tool_use", "id": "None", "name": name, "input": arguments}],
+        "content": [
+            {"type": "tool_use", "id": "None", "name": name, "input": arguments}
+        ],
         "role": "assistant",
         "generation_id": "Null",
         "choices": [
@@ -72,7 +74,7 @@ def _streaming_response(content: str, model: str):
         chunk = {
             "id": "Null",
             "text": char,
-            "content": char,
+            "content": None,
             "role": "assistant",
             "object": "chat.completion.chunk",
             "created": int(time()),
@@ -84,6 +86,9 @@ def _streaming_response(content: str, model: str):
                     "finish_reason": "stop",
                 }
             ],
+            "type": "content_block_delta",
+            "index": 0,
+            "delta": {"type": "text_delta", "text": char},
         }
         yield f"data: {dumps(chunk)}\n\n"
     yield "data: [DONE]\n\n"
@@ -94,7 +99,9 @@ def _streaming_function_call(name: str, arguments: dict, model: str):
         chunk = {
             "id": "Null",
             "role": "assistant",
-            "content": [{"type": "tool_use", "id": "None", "name": name, "input": arguments}],
+            "content": [
+                {"type": "tool_use", "id": "None", "name": name, "input": arguments}
+            ],
             "object": "chat.completion.chunk",
             "created": int(time()),
             "model": model,
