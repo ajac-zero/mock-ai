@@ -17,8 +17,10 @@ pytest-asyncio = "^0.23.7"
 mock-ai = "mockai.cli:cli"
 
 [tool.poe.tasks]
-test.script = "scripts:test"
-format.script = "scripts:format"
+test = "pytest -v"
+lint = "ruff check --fix"
+format = "ruff format"
+ruff = ["lint", "format"]
 
 [tool.poetry.group.dev.dependencies]
 openai = "^1.35.1"
