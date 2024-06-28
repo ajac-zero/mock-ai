@@ -18,6 +18,7 @@ app = FastAPI()
 
 
 @app.post("/chat")
+@app.post("/v1/messages")
 @app.post("/chat/completions")
 @app.post("/v1/chat/completions")
 def chat_completions_create(request: Request, data: ChatCompletionsRequest):

@@ -13,6 +13,8 @@ def _normal_response(content: str, model: str):
     response = {
         "id": "Null",
         "text": content,
+        "content": content,
+        "role": "assistant",
         "generation_id": "Null",
         "choices": [
             {
@@ -33,6 +35,8 @@ def _normal_function_call(name: str, arguments: dict, model: str):
     response = {
         "id": "Null",
         "text": "None",
+        "content": [{"type": "tool_use", "id": "None", "name": name, "input": arguments}],
+        "role": "assistant",
         "generation_id": "Null",
         "choices": [
             {
@@ -67,6 +71,9 @@ def _streaming_response(content: str, model: str):
     for char in content:
         chunk = {
             "id": "Null",
+            "text": char,
+            "content": char,
+            "role": "assistant",
             "object": "chat.completion.chunk",
             "created": int(time()),
             "model": model,
@@ -86,6 +93,8 @@ def _streaming_function_call(name: str, arguments: dict, model: str):
     for _ in name:
         chunk = {
             "id": "Null",
+            "role": "assistant",
+            "content": [{"type": "tool_use", "id": "None", "name": name, "input": arguments}],
             "object": "chat.completion.chunk",
             "created": int(time()),
             "model": model,

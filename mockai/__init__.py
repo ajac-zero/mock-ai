@@ -1,12 +1,13 @@
 import sys
 from types import ModuleType
 
-from mockai.clients import cohere, mistralai, openai
+from mockai.clients import cohere, mistralai, openai, anthropic
 
 clients = [
-    (openai, ["OpenAI", "Client"]),
-    (mistralai, ["MistralClient"]),
-    (cohere, ["Client"]),
+    (openai, openai.__all__),
+    (mistralai, mistralai.__all__),
+    (cohere, cohere.__all__),
+    (anthropic, anthropic.__all__)
 ]
 
 for sdk, client_classes in clients:
