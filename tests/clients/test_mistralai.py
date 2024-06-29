@@ -9,7 +9,7 @@ from mistralai.models.chat_completion import (
     ToolCall,
 )
 
-from mockai.clients.mistralai import MistralAsyncClient, MistralClient
+from fauxai.clients.mistralai import MistralAsyncClient, MistralClient
 
 
 @pytest.fixture

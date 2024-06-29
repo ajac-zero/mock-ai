@@ -16,10 +16,10 @@ def start(
     port: int = 8100,
 ):
     if responses:
-        echo(f"Reading {responses.name}...\n")
-        os.environ["MOCKAI_RESPONSES"] = responses.read()
+        echo(f"Reading {responses.name}...")
+        os.environ["FAUXAI_RESPONSES"] = responses.read()
 
-    echo(f"Starting MockAI server on http://{host}:{port}...\n")
+    echo(f"Starting FauxAI server on http://{host}:{port}...")
     subprocess.run(
         [
             "uvicorn",

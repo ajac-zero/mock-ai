@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "mockai"
+name = "fauxai"
 version = "0.1.0"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
@@ -14,7 +14,7 @@ typer = {extras = ["all"], version = "^0.12.3"}
 pytest-asyncio = "^0.23.7"
 
 [tool.poetry.scripts]
-mock-ai = "mockai.cli:cli"
+fauxai = "fauxai.cli:cli"
 
 [tool.poe.tasks]
 test = "pytest -v"
@@ -32,7 +32,7 @@ poethepoet = "^0.26.1"
 anthropic = "^0.30.0"
 
 [tool.pytest.ini_options]
-pythonpath = ["mockai"]
+pythonpath = ["fauxai"]
 
 [tool.ruff.lint]
 extend-select = ["I"]

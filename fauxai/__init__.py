@@ -1,7 +1,7 @@
 import sys
 from types import ModuleType
 
-from mockai.clients import anthropic, cohere, mistralai, openai
+from fauxai.clients import anthropic, cohere, mistralai, openai
 
 clients = [
     (openai, openai.__all__),
@@ -11,8 +11,8 @@ clients = [
 ]
 
 for sdk, client_classes in clients:
-    sdk_name = sdk.__name__.replace("mockai.clients.", "")
-    mod = ModuleType(f"mockai.{sdk_name}")
+    sdk_name = sdk.__name__.replace("fauxai.clients.", "")
+    mod = ModuleType(f"fauxai.{sdk_name}")
 
     sys.modules[mod.__name__] = mod
 

@@ -6,8 +6,8 @@ from fastapi import FastAPI, Request
 from starlette.exceptions import HTTPException
 from starlette.responses import StreamingResponse
 
-from mockai.server.models import ChatCompletionsRequest
-from mockai.server.responses import (
+from fauxai.server.models import ChatCompletionsRequest
+from fauxai.server.responses import (
     _normal_function_call,
     _normal_response,
     _streaming_function_call,
@@ -29,7 +29,7 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
     else:
         raise HTTPException(400, "No message content was found.")
 
-    responses = os.getenv("MOCKAI_RESPONSES")
+    responses = os.getenv("FAUXAI_RESPONSES")
 
     FUNCTION_CALL = True if "func" in content.lower() else False
     STREAM = data.stream
