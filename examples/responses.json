@@ -1,0 +1,16 @@
+{
+    "Who made git?": {
+        "type": "completion",
+        "content": "The creator of git is Linus Torvalds"
+    },
+    "Please send Adam an email with a status update on the project": {
+        "type": "function",
+        "name": "send_email",
+        "arguments": {
+            "sender": "Anibal",
+            "recipient": "Adam",
+            "subject": "Status Update",
+            "body": "I'm still working on the project"
+        }
+    }
+}
