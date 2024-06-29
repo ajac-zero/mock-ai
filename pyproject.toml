@@ -11,7 +11,6 @@ python = "^3.12"
 pydantic = "^2.7.4"
 fastapi = { extras = ["standard"], version = "^0.111.0" }
 typer = {extras = ["all"], version = "^0.12.3"}
-pytest-asyncio = "^0.23.7"
 
 [tool.poetry.scripts]
 fauxai = "fauxai.cli:cli"
@@ -25,14 +24,16 @@ ruff = ["lint", "format"]
 [tool.poetry.group.dev.dependencies]
 openai = "^1.35.1"
 pytest = "^8.2.2"
+pytest-asyncio = "^0.23.7"
 ruff = "^0.4.9"
 mistralai = "^0.4.1"
 cohere = "^5.5.8"
 poethepoet = "^0.26.1"
 anthropic = "^0.30.0"
+ipykernel = "^6.29.4"
 
 [tool.pytest.ini_options]
-pythonpath = ["fauxai"]
+pythonpath = ["."]
 
 [tool.ruff.lint]
 extend-select = ["I"]

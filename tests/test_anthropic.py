@@ -1,7 +1,7 @@
 import pytest
 from anthropic.types import Message, ToolUseBlock
 
-from fauxai.clients.anthropic import Anthropic, AsyncAnthropic, AsyncClient, Client
+from fauxai.anthropic import Anthropic, AsyncAnthropic, AsyncClient, Client
 
 
 @pytest.mark.parametrize("client", [Anthropic(), Client()])

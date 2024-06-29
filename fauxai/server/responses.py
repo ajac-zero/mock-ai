@@ -31,7 +31,7 @@ def _normal_response(content: str, model: str):
     return response
 
 
-def _normal_function_call(name: str, arguments: dict, model: str):
+def _normal_function_call(name: str, arguments: dict, model: str, stringify: bool):
     response = {
         "id": "Null",
         "text": "None",
@@ -51,7 +51,7 @@ def _normal_function_call(name: str, arguments: dict, model: str):
                             "id": "Null",
                             "type": "function",
                             "function": {
-                                "arguments": dumps(arguments),
+                                "arguments": dumps(arguments) if stringify else arguments,
                                 "name": name,
                             },
                         }
@@ -94,7 +94,7 @@ def _streaming_response(content: str, model: str):
     yield "data: [DONE]\n\n"
 
 
-def _streaming_function_call(name: str, arguments: dict, model: str):
+def _streaming_function_call(name: str, arguments: dict, model: str, stringify: bool):
     for _ in name:
         chunk = {
             "id": "Null",
@@ -116,7 +116,7 @@ def _streaming_function_call(name: str, arguments: dict, model: str):
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                    "arguments": dumps(arguments),
+                                    "arguments": dumps(arguments) if stringify else arguments,
                                     "name": name,
                                 },
                             }

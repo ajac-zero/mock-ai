@@ -13,7 +13,7 @@ DIR = os.path.dirname(os.path.realpath(__file__))
 
 @pytest.fixture(scope="session", autouse=True)
 def mockai_server():
-    with open(f"{DIR}/mock_responses.json", "r") as json_responses:
+    with open(f"{DIR}/test_responses.json", "r") as json_responses:
         os.environ["FAUXAI_RESPONSES"] = json_responses.read()
 
     process = Process(target=lambda: uvicorn.run(app, port=PORT), daemon=True)

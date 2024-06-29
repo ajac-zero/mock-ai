@@ -158,7 +158,7 @@ The fauxai server takes an optional path to a JSON file were we can establish ou
 
 The structure of the json is simple. Each key should be the the **content** of a user message, and the value is a dict with the wanted response.
 ```json
-# mock_responses.json
+// mock_responses.json
 {
   "Hello?": {
     "type": "completion",

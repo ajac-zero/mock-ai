@@ -7,7 +7,7 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, ChoiceDeltaToolCall
 
-from fauxai.clients.openai import AsyncClient, AsyncOpenAI, Client, OpenAI
+from fauxai.openai import AsyncClient, AsyncOpenAI, Client, OpenAI
 
 
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
@@ -53,7 +53,7 @@ async def test_async_openai_chat_programmed_completion(client):
     assert completion.choices[0].message.tool_calls[0].function.name == "get_weather"  # type: ignore
     assert (
         completion.choices[0].message.tool_calls[0].function.arguments  # type: ignore
-        == """{"weather": "42 degrees Fahrenheit"}"""
+        == {"weather": "42 degrees Fahrenheit"}
     )
 
 

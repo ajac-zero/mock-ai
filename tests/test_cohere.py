@@ -5,7 +5,7 @@ from cohere.types import (
     ToolCall,
 )
 
-from fauxai.clients.cohere import AsyncClient, Client
+from fauxai.cohere import AsyncClient, Client
 
 
 @pytest.fixture

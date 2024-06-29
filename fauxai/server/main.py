@@ -17,10 +17,10 @@ from fauxai.server.responses import (
 app = FastAPI()
 
 
-@app.post("/chat")
-@app.post("/v1/messages")
-@app.post("/chat/completions")
-@app.post("/v1/chat/completions")
+@app.post("/chat") # Cohere
+@app.post("/v1/messages") # Anthropic
+@app.post("/chat/completions") # OpenAI
+@app.post("/v1/chat/completions") # Mistral
 def chat_completions_create(request: Request, data: ChatCompletionsRequest):
     if data.messages:
         content = data.messages[-1].content
@@ -68,14 +68,16 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
         except KeyError:
             warn("No matching response found in JSON file, using default values...")
 
+    STRINGIFY_ARGUMENTS = True if request.url._url[-20:] == "/v1/chat/completions" else False
+
     model = data.model if data.model is not None else "mock-model"
     options = (FUNCTION_CALL, STREAM)
 
     match options:
         case (True, True):
-            return StreamingResponse(_streaming_function_call(name, arguments, model))
+            return StreamingResponse(_streaming_function_call(name, arguments, model, STRINGIFY_ARGUMENTS))
         case (True, False):
-            return _normal_function_call(name, arguments, model)
+            return _normal_function_call(name, arguments, model, STRINGIFY_ARGUMENTS)
         case (False, True):
             return StreamingResponse(_streaming_response(content, model))
         case (False, False):
