@@ -1,7 +1,7 @@
 from functools import partial
 from importlib.util import find_spec
 
-from fauxai.constants import API_KEY, ENDPOINT, NOT_AVAILABLE
+from mockai.constants import API_KEY, ENDPOINT, NOT_AVAILABLE
 
 __all__ = [
     "Anthropic",

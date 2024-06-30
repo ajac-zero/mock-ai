@@ -51,7 +51,9 @@ def _normal_function_call(name: str, arguments: dict, model: str, stringify: boo
                             "id": "Null",
                             "type": "function",
                             "function": {
-                                "arguments": dumps(arguments) if stringify else arguments,
+                                "arguments": dumps(arguments)
+                                if stringify
+                                else arguments,
                                 "name": name,
                             },
                         }
@@ -116,7 +118,9 @@ def _streaming_function_call(name: str, arguments: dict, model: str, stringify: 
                                 "id": "Null",
                                 "type": "function",
                                 "function": {
-                                    "arguments": dumps(arguments) if stringify else arguments,
+                                    "arguments": dumps(arguments)
+                                    if stringify
+                                    else arguments,
                                     "name": name,
                                 },
                             }

@@ -1,8 +1,9 @@
 [tool.poetry]
-name = "fauxai"
+name = "ai-mock"
 version = "0.1.0"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
+packages = [{"include" = "mockai"}]
 readme = "README.md"
 license = "MIT"
 
@@ -13,7 +14,7 @@ fastapi = { extras = ["standard"], version = "^0.111.0" }
 typer = {extras = ["all"], version = "^0.12.3"}
 
 [tool.poetry.scripts]
-fauxai = "fauxai.cli:cli"
+mockai-server = "mockai.cli:cli"
 
 [tool.poe.tasks]
 test = "pytest -v"

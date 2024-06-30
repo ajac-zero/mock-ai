@@ -7,7 +7,7 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, ChoiceDeltaToolCall
 
-from fauxai.openai import AsyncClient, AsyncOpenAI, Client, OpenAI
+from mockai.openai import AsyncClient, AsyncOpenAI, Client, OpenAI
 
 
 @pytest.mark.parametrize("client", [OpenAI(), Client()])

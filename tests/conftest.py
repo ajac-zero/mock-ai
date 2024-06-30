@@ -5,8 +5,8 @@ from multiprocessing import Process
 import pytest
 import uvicorn
 
-from fauxai.constants import API_KEY, ENDPOINT, PORT
-from fauxai.server import app
+from mockai.constants import API_KEY, ENDPOINT, PORT
+from mockai.server import app
 
 DIR = os.path.dirname(os.path.realpath(__file__))
 
