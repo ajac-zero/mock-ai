@@ -17,7 +17,7 @@ from mockai.server.responses import (
 app = FastAPI()
 
 
-@app.post("/chat")  # Cohere
+@app.post("/v1/chat")  # Cohere
 @app.post("/v1/messages")  # Anthropic
 @app.post("/chat/completions")  # OpenAI
 @app.post("/v1/chat/completions")  # Mistral
@@ -29,7 +29,7 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
     else:
         raise HTTPException(400, "No message content was found.")
 
-    responses = os.getenv("FAUXAI_RESPONSES")
+    responses = os.getenv("MOCKAI_RESPONSES")
 
     FUNCTION_CALL = True if "func" in content.lower() else False
     STREAM = data.stream
