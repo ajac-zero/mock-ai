@@ -2,7 +2,8 @@ import os
 import subprocess
 from typing import Annotated, Optional
 
-from typer import Argument, FileText, Typer, echo
+from rich import print
+from typer import Argument, FileText, Typer
 
 cli = Typer()
 
@@ -16,10 +17,11 @@ def start(
     port: int = 8100,
 ):
     if responses:
-        echo(f"Reading {responses.name}...")
+        print(f"[cyan]Reading pre-determined responses from[/cyan] [bold yellow]{responses.name}[/bold yellow].")
         os.environ["MOCKAI_RESPONSES"] = responses.read()
 
-    echo(f"Starting MockAI server on http://{host}:{port}...")
+    url = f"http://{host}:{port}"
+    print(f"[green]Starting MockAI server on[/green] [link={url}][bold blue]{url}[/bold blue][/link] ...")
     subprocess.run(
         [
             "uvicorn",
