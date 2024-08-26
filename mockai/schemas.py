@@ -1,7 +1,6 @@
 from typing import Literal, TypeAlias
 
-from pydantic import BaseModel
-from pydantic.dataclasses import dataclass
+from pydantic import BaseModel, Field
 
 ResponseType: TypeAlias = Literal["text", "function"]
 
@@ -17,12 +16,11 @@ class PreDeterminedResponse(BaseModel):
     output: str | FunctionOutput
 
 
-@dataclass
-class ResponseConfig:
+class ResponseConfig(BaseModel):
     content: str
 
     type: ResponseType = "text"
     streaming: bool = False
     model: str = "mock-model"
     stringify_args: bool = False
-    function_params: FunctionOutput = FunctionOutput()
+    function_params: FunctionOutput = Field(default_factory=FunctionOutput)

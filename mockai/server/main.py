@@ -1,23 +1,19 @@
 import json
 import os
 from typing import cast
-from enum import Enum
-from typing_extensions import Text
 from warnings import warn
 
 from fastapi import FastAPI, Request
-from pydantic import ValidationError
-from pydantic.dataclasses import dataclass
 from starlette.exceptions import HTTPException
 from starlette.responses import StreamingResponse
 
-from mockai.schemas import PreDeterminedResponse, FunctionOutput, ResponseConfig
+from mockai.schemas import FunctionOutput, PreDeterminedResponse, ResponseConfig
 from mockai.server.models import ChatCompletionsRequest
 from mockai.server.responses import (
-    text_response,
-    streaming_text_response,
     function_response,
     streaming_function_response,
+    streaming_text_response,
+    text_response,
 )
 
 
@@ -41,10 +37,12 @@ def search_predetermined_responses(
     for response in responses:
         if response.input == config.content:
             found = True
+            config.type = response.type
             if response.type == "text":
                 config.content = cast(str, response.output)
             else:
                 config.function_params = cast(FunctionOutput, response.output)
+            break
 
     if not found:
         warn("No matching response found in response JSON file.")
@@ -83,10 +81,15 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
         raise HTTPException(400, "No message content was found.")
 
     # Default response config
-    config = ResponseConfig(content)
+    config = ResponseConfig(content=content)
 
     if "func" in content.lower():
         config.type = "function"
+
+    if data.stream is None:
+        config.streaming = False
+    else:
+        config.streaming = data.stream
 
     if request.url._url[-4:] == "chat":
         config.streaming = False
