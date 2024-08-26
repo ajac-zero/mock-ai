@@ -1,15 +1,13 @@
 from json import dumps
 from time import time
 
-__all__ = [
-    "_normal_response",
-    "_normal_function_call",
-    "_streaming_response",
-    "_streaming_function_call",
-]
+from mockai.schemas import ResponseConfig
 
 
-def _normal_response(content: str, model: str):
+def text_response(config: ResponseConfig):
+    content = config.content
+    model = config.model
+
     response = {
         "id": "Null",
         "text": content,
@@ -31,7 +29,12 @@ def _normal_response(content: str, model: str):
     return response
 
 
-def _normal_function_call(name: str, arguments: dict, model: str, stringify: bool):
+def function_response(config: ResponseConfig):
+    name = config.function_params.name
+    arguments = config.function_params.arguments
+    stringify = config.stringify_args
+    model = config.model
+
     response = {
         "id": "Null",
         "text": "None",
@@ -71,7 +74,10 @@ def _normal_function_call(name: str, arguments: dict, model: str, stringify: boo
     return response
 
 
-def _streaming_response(content: str, model: str):
+def streaming_text_response(config: ResponseConfig):
+    content = config.content
+    model = config.model
+
     for char in content:
         chunk = {
             "id": "Null",
@@ -96,7 +102,12 @@ def _streaming_response(content: str, model: str):
     yield "data: [DONE]\n\n"
 
 
-def _streaming_function_call(name: str, arguments: dict, model: str, stringify: bool):
+def streaming_function_response(config: ResponseConfig):
+    name = config.function_params.name
+    arguments = config.function_params.arguments
+    stringify = config.stringify_args
+    model = config.model
+
     for _ in name:
         chunk = {
             "id": "Null",

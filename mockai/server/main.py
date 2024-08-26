@@ -1,18 +1,71 @@
 import json
 import os
+from typing import cast
+from enum import Enum
+from typing_extensions import Text
 from warnings import warn
 
 from fastapi import FastAPI, Request
+from pydantic import ValidationError
+from pydantic.dataclasses import dataclass
 from starlette.exceptions import HTTPException
 from starlette.responses import StreamingResponse
 
+from mockai.schemas import PreDeterminedResponse, FunctionOutput, ResponseConfig
 from mockai.server.models import ChatCompletionsRequest
 from mockai.server.responses import (
-    _normal_function_call,
-    _normal_response,
-    _streaming_function_call,
-    _streaming_response,
+    text_response,
+    streaming_text_response,
+    function_response,
+    streaming_function_response,
 )
+
+
+def load_predetermined_responses() -> list[PreDeterminedResponse]:
+    responses = os.environ.get("MOCKAI_RESPONSES", "[]")
+
+    if responses is not None:
+        all_responses = json.loads(responses)
+        responses = [
+            PreDeterminedResponse.model_validate(response) for response in all_responses
+        ]
+
+    return responses
+
+
+def search_predetermined_responses(
+    config: ResponseConfig, responses: list[PreDeterminedResponse]
+):
+    found = False
+
+    for response in responses:
+        if response.input == config.content:
+            found = True
+            if response.type == "text":
+                config.content = cast(str, response.output)
+            else:
+                config.function_params = cast(FunctionOutput, response.output)
+
+    if not found:
+        warn("No matching response found in response JSON file.")
+
+    return config
+
+
+def generate_response(config: ResponseConfig):
+    if config.type == "text":
+        if config.streaming:
+            return streaming_text_response(config)
+        else:
+            return text_response(config)
+    else:
+        if config.streaming:
+            return streaming_function_response(config)
+        else:
+            return function_response(config)
+
+
+predetermined_responses = load_predetermined_responses()
 
 app = FastAPI()
 
@@ -29,60 +82,26 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
     else:
         raise HTTPException(400, "No message content was found.")
 
-    responses = os.getenv("MOCKAI_RESPONSES")
+    # Default response config
+    config = ResponseConfig(content)
 
-    FUNCTION_CALL = True if "func" in content.lower() else False
-    STREAM = data.stream
+    if "func" in content.lower():
+        config.type = "function"
 
     if request.url._url[-4:] == "chat":
-        STREAM = False
+        config.streaming = False
 
-    name = "mock_function"
-    arguments = {"mock_arg": "mock_var"}
+    if request.url._url[-20:] == "/v1/chat/completions":
+        config.stringify_args = True
 
-    if responses is not None:
-        all_responses_dict = json.loads(responses)
-        try:
-            response_dict = all_responses_dict[content]
-            try:
-                response_type = response_dict["type"]
-                if response_type == "function":
-                    try:
-                        name = response_dict["name"]
-                        arguments = response_dict["arguments"]
-                        FUNCTION_CALL = True
-                    except KeyError:
-                        raise HTTPException(
-                            400, "Mock function call must have name and arguments field"
-                        )
-                elif response_type == "completion":
-                    try:
-                        content = response_dict["content"]
-                        FUNCTION_CALL = False
-                    except KeyError:
-                        raise HTTPException(
-                            400, "Mock completion must have content field"
-                        )
-            except KeyError:
-                raise HTTPException(400, "Type of mock response must be specified")
-        except KeyError:
-            warn("No matching response found in JSON file, using default values...")
+    if data.model is not None:
+        config.model = data.model
 
-    STRINGIFY_ARGUMENTS = (
-        True if request.url._url[-20:] == "/v1/chat/completions" else False
-    )
+    config = search_predetermined_responses(config, predetermined_responses)
 
-    model = data.model if data.model is not None else "mock-model"
-    options = (FUNCTION_CALL, STREAM)
+    response = generate_response(config)
 
-    match options:
-        case (True, True):
-            return StreamingResponse(
-                _streaming_function_call(name, arguments, model, STRINGIFY_ARGUMENTS)
-            )
-        case (True, False):
-            return _normal_function_call(name, arguments, model, STRINGIFY_ARGUMENTS)
-        case (False, True):
-            return StreamingResponse(_streaming_response(content, model))
-        case (False, False):
-            return _normal_response(content, model)
+    if config.streaming:
+        return StreamingResponse(response)
+    else:
+        return response

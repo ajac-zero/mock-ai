@@ -1,6 +1,6 @@
 [
   {
-    "type": "completion",
+    "type": "text",
     "input": "Hello?",
     "output": "How are ya!"
   },
