@@ -1,13 +1,17 @@
-{
-  "Hello?": {
+[
+  {
     "type": "completion",
-    "content": "How are ya!"
+    "input": "Hello?",
+    "output": "How are ya!"
   },
-  "What's the weather in San Fran": {
+  {
     "type": "function",
-    "name": "get_weather",
-    "arguments": {
-      "weather": "42 degrees Fahrenheit"
+    "input": "What's the weather in San Fran",
+    "output": {
+      "name": "get_weather",
+      "arguments": {
+        "weather": "42 degrees Fahrenheit"
+      }
     }
   }
-}
+]
