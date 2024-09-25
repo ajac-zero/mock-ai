@@ -1,9 +1,9 @@
 [tool.poetry]
 name = "ai-mock"
-version = "0.1.0"
+version = "0.1.1"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
-packages = [{"include" = "mockai"}]
+packages = [{ "include" = "mockai" }]
 readme = "README.md"
 license = "MIT"
 
@@ -11,7 +11,7 @@ license = "MIT"
 python = "^3.10"
 pydantic = "^2.7.4"
 fastapi = { extras = ["standard"], version = "^0.111.0" }
-typer = {extras = ["all"], version = "^0.12.3"}
+typer = { extras = ["all"], version = "^0.12.3" }
 
 [tool.poetry.scripts]
 mockai-server = "mockai.cli:cli"
