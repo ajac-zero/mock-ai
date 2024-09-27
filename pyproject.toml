@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ai-mock"
-version = "0.1.2"
+version = "0.2.0"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
 packages = [{ "include" = "mockai" }]
@@ -9,9 +9,7 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^2.7.4"
 fastapi = { extras = ["standard"], version = "^0.111.0" }
-typer = { extras = ["all"], version = "^0.12.3" }
 openai = { version = "^1.47.1", optional = true }
 anthropic = { version = "^0.30.0", optional = true }
 mistralai = { version = "=0.4.1", optional = true }
@@ -25,13 +23,13 @@ cohere = ["cohere"]
 all = ["openai", "anthropic", "mistralai", "cohere"]
 
 [tool.poetry.scripts]
-mockai-server = "mockai.cli:cli"
+mockai = "mockai.cli:cli"
 
 [tool.poe.tasks]
 test = "pytest -v"
 lint = "ruff check --fix"
 format = "ruff format"
-ruff = ["lint", "format"]
+tidy = ["lint", "format"]
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^8.2.2"

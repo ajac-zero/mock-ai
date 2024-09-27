@@ -1,0 +1,17 @@
+[
+  {
+    "type": "text",
+    "input": "How are ya?",
+    "output": "I'm fine, thank u 😊. How about you?"
+  },
+  {
+    "type": "function",
+    "input": "Where's my order?",
+    "output": {
+      "name": "get_delivery_date",
+      "arguments": {
+        "order_id": "1337"
+      }
+    }
+  }
+]

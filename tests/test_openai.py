@@ -23,11 +23,13 @@ def test_openai_chat_completion(client):
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
 def test_openai_chat_programmed_completion(client):
     completion = client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Hello?"}]
+        model="mock", messages=[{"role": "user", "content": "How are ya?"}]
     )
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
-    assert completion.choices[0].message.content == "How are ya!"
+    assert (
+        completion.choices[0].message.content == "I'm fine, thank u 😊. How about you?"
+    )
 
 
 @pytest.mark.asyncio
@@ -46,14 +48,16 @@ async def test_async_openai_chat_completion(client):
 async def test_async_openai_chat_programmed_completion(client):
     completion = await client.chat.completions.create(
         model="mock",
-        messages=[{"role": "user", "content": "What's the weather in San Fran"}],
+        messages=[{"role": "user", "content": "Where's my order?"}],
     )
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
-    assert completion.choices[0].message.tool_calls[0].function.name == "get_weather"  # type: ignore
+    assert (
+        completion.choices[0].message.tool_calls[0].function.name == "get_delivery_date"  # type: ignore
+    )
     assert (
         completion.choices[0].message.tool_calls[0].function.arguments  # type: ignore
-        == {"weather": "42 degrees Fahrenheit"}
+        == {"order_id": "1337"}
     )
 
 
@@ -81,7 +85,7 @@ async def test_async_openai_chat_completion_stream(client):
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
 def test_openai_function_call(client):
     completion = client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Function!"}]
+        model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
     )
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
@@ -94,7 +98,7 @@ def test_openai_function_call(client):
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
 def test_openai_programmed_function_call(client):
     completion = client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Function!"}]
+        model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
     )
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
@@ -108,7 +112,7 @@ def test_openai_programmed_function_call(client):
 @pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
 async def test_async_openai_function_call(client):
     completion = await client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Function!"}]
+        model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
     )
     assert isinstance(completion, ChatCompletion)
     assert isinstance(completion.choices[0].message, ChatCompletionMessage)
@@ -121,7 +125,9 @@ async def test_async_openai_function_call(client):
 @pytest.mark.parametrize("client", [OpenAI(), Client()])
 def test_openai_function_call_stream(client):
     response = client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Function!"}], stream=True
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        stream=True,
     )
     completion = next(response)
     assert isinstance(completion, ChatCompletionChunk)
@@ -136,7 +142,9 @@ def test_openai_function_call_stream(client):
 @pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
 async def test_async_openai_function_call_stream(client):
     response = await client.chat.completions.create(
-        model="mock", messages=[{"role": "user", "content": "Function!"}], stream=True
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        stream=True,
     )
     completion = await anext(response)
     assert isinstance(completion, ChatCompletionChunk)

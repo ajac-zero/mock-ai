@@ -1,58 +1,45 @@
 import json
 import os
 import subprocess
-from typing import Annotated, Optional
 
+import click
 import pydantic
-from rich import print
-from typer import Argument, FileText, Typer
 
-from mockai.schemas import PreDeterminedResponse
-
-cli = Typer()
+from mockai.models import PreDeterminedResponse
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-@cli.command()
-def start(
-    response_file: Annotated[Optional[FileText], Argument()] = None,
-    host: str = "127.0.0.1",
-    port: int = 8100,
-):
-    if response_file:
-        print(
-            f"[cyan]Reading pre-determined responses from[/cyan] [bold yellow]{response_file.name}[/bold yellow]."
-        )
+@click.command()
+@click.argument("responses", type=click.File("rb"), required=False)
+@click.option("--host", "-h", default="127.0.0.1")
+@click.option("--port", "-p", default=8100)
+def cli(host, port, responses):
+    if responses:
+        print(f"Reading pre-determined responses from {responses.name}.")
 
         try:
-            with open(response_file.name, "r") as f:
-                responses_data = json.load(f)
+            responses_data = json.load(responses)
         except json.JSONDecodeError:
-            print("[red]Error reading JSON file: Is it valid JSON?[/red]")
-            return
+            raise click.BadParameter("Error reading JSON file: Is it valid JSON?")
 
         try:
             for response in responses_data:
                 PreDeterminedResponse.model_validate(response)
         except pydantic.ValidationError as e:
-            print(
-                f"[red]Error validating responses. Make sure the follow the proper structure: {e}[/red]"
+            raise click.BadParameter(
+                f"Error validating responses. Make sure the follow the proper structure: {e}"
             )
-            return
 
         os.environ["MOCKAI_RESPONSES"] = json.dumps(responses_data)
 
-    url = f"http://{host}:{port}"
-    print(
-        f"[green]Starting MockAI server on[/green] [link={url}][bold blue]{url}[/bold blue][/link] ..."
-    )
+    print(f"Starting MockAI server ...")
     subprocess.run(
         [
             "uvicorn",
             "--app-dir",
             f"{dir_path}",
-            "server:app",
+            "main:app",
             "--host",
             host,
             "--port",

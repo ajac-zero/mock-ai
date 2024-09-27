@@ -107,4 +107,5 @@ def chat_completions_create(request: Request, data: ChatCompletionsRequest):
     if config.streaming:
         return StreamingResponse(response)
     else:
+        print(response)
         return response
