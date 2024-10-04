@@ -200,20 +200,20 @@ client = OpenAI()
 
 response = client.chat.completions.create(
         model="gpt-5",
-        messages=[{"role": "user", "content": "Hello?"}],
+        messages=[{"role": "user", "content": "How are ya?"}],
     )
 
 print(response.choices[0].message.content)
-# >> "How are ya!"
+# >> "I'm fine, thank u 😊. How about you?"
 
 response = client.chat.completions.create(
         model="gpt-5",
-        messages=[{"role": "user", "content": "What's the weather in San Fran"}],
+        messages=[{"role": "user", "content": "Where's my order?"}],
     )
 
 print(response.choices[0].message.tool_calls[0].function.name)
-# >> "get_weather"
+# >> "get_delivery_date"
 
 print(response.choices[0].message.tool_calls[0].function.arguments)
-# >> "{'weather': '42 degrees Fahrenheit'}"
+# >> "{'order_id': '1337'}"
 ```
