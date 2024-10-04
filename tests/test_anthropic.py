@@ -1,138 +1,150 @@
+import json
+
 import pytest
-from anthropic.types import Message, ToolUseBlock
+from anthropic import AsyncStream, Stream
+from anthropic.types import Message, TextBlock, ToolUseBlock
 
 from mockai.anthropic import Anthropic, AsyncAnthropic, AsyncClient, Client
 
 
-@pytest.mark.parametrize("client", [Anthropic(), Client()])
-def test_anthropic_chat_completion(client):
-    completion = client.messages.create(
+# Fixtures
+@pytest.fixture(params=[Anthropic(), Client()])
+def client_x(request):
+    return request.param
+
+
+@pytest.fixture(params=[AsyncAnthropic(), AsyncClient()])
+def async_client_x(request):
+    return request.param
+
+
+# Tests
+def test_message(client_x):
+    completion = client_x.messages.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], max_tokens=1024
     )
-    assert isinstance(completion, Message)
-    assert isinstance(completion.content, str)
+    content = completion.content[0]
+    assert isinstance(content, TextBlock)
+    assert content.text == "Hello!"
 
 
-@pytest.mark.parametrize("client", [Anthropic(), Client()])
-def test_anthropic_programmed_chat_completion(client):
-    completion = client.messages.create(
-        model="mock", messages=[{"role": "user", "content": "Hello?"}], max_tokens=1024
-    )
-    assert isinstance(completion, Message)
-    assert completion.content == "How are ya!"
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncAnthropic(), AsyncClient()])
-async def test_async_anthropic_chat_completion(client):
-    completion = await client.messages.create(
-        model="mock", messages=[{"role": "user", "content": "Hello!"}], max_tokens=1024
-    )
-    assert isinstance(completion, Message)
-    assert isinstance(completion.content, str)
-
-
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncAnthropic(), AsyncClient()])
-async def test_async_anthropic_chat_programmed_completion(client):
-    completion = await client.messages.create(
+def test_predefined_message(client_x):
+    completion = client_x.messages.create(
         model="mock",
-        messages=[{"role": "user", "content": "What's the weather in San Fran"}],
+        messages=[{"role": "user", "content": "How are ya?"}],
+        max_tokens=1024,
+    )
+    content = completion.content[0]
+    assert isinstance(content, TextBlock)
+    assert content.text == "I'm fine, thank u 😊. How about you?"
+
+
+def test_message_stream(client_x):
+    generator = client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "How are ya?"}],
+        max_tokens=1024,
+        stream=True,
+    )
+    assert isinstance(generator, Stream)
+    buffer = ""
+    for chunk in generator:
+        if chunk.type == "content_block_delta":
+            buffer += chunk.delta.text
+    assert buffer == "I'm fine, thank u 😊. How about you?"
+
+
+def test_tool_call(client_x):
+    response = client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        max_tokens=1024,
+    )
+    tool = response.content[0]
+    assert isinstance(tool, ToolUseBlock)
+    assert tool.name == "get_delivery_date"
+    assert tool.input == {"order_id": "1337"}
+
+
+def test_tool_call_stream(client_x):
+    generator = client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        max_tokens=1024,
+        stream=True,
+    )
+    assert isinstance(generator, Stream)
+    buffer = ""
+    for chunk in generator:
+        if chunk.type == "content_block_delta":
+            buffer += chunk.delta.partial_json
+    assert json.loads(buffer) == {"order_id": "1337"}
+
+
+@pytest.mark.asyncio
+async def test_async_message(async_client_x):
+    completion = await async_client_x.messages.create(
+        model="mock", messages=[{"role": "user", "content": "Hello!"}], max_tokens=1024
+    )
+    assert isinstance(completion, Message)
+    content = completion.content[0]
+    assert isinstance(content, TextBlock)
+    assert content.text == "Hello!"
+
+
+@pytest.mark.asyncio
+async def test_predefined_async_message(async_client_x):
+    completion = await async_client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
         max_tokens=1024,
     )
     assert isinstance(completion, Message)
     assert isinstance(completion.content[0], ToolUseBlock)
-    assert completion.content[0].name == "get_weather"
-    assert completion.content[0].input == {"weather": "42 degrees Fahrenheit"}
+    assert completion.content[0].name == "get_delivery_date"
+    assert completion.content[0].input == {"order_id": "1337"}
 
 
-# pytest.mark.parametrize("client", [Anthropic(), Client()])
-# ef test_anthropic_chat_completion_stream(client):
-#   response = client.messages.create(
-#       model="mock",
-#       messages=[{"role": "user", "content": "Hello!"}],
-#       stream=True,
-#       max_tokens=1024,
-#   )
-#   completion = next(response)
-#   assert isinstance(completion, MessageStreamEvent)
+@pytest.mark.asyncio
+async def test_async_message_stream(async_client_x):
+    generator = await async_client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "How are ya?"}],
+        max_tokens=1024,
+        stream=True,
+    )
+    assert isinstance(generator, AsyncStream)
+    buffer = ""
+    async for chunk in generator:
+        if chunk.type == "content_block_delta":
+            buffer += chunk.delta.text
+    assert buffer == "I'm fine, thank u 😊. How about you?"
 
 
-# pytest.mark.asyncio
-# pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
-# sync def test_async_openai_chat_completion_stream(client):
-#   response = await client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Hello!"}], stream=True
-#   )
-#   completion = await anext(response)
-#   assert isinstance(completion, ChatCompletionChunk)
-#   assert isinstance(completion.choices[0].delta.content, str)
+@pytest.mark.asyncio
+async def test_async_tool_call(async_client_x):
+    response = await async_client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        max_tokens=1024,
+    )
+    tool = response.content[0]
+    assert isinstance(tool, ToolUseBlock)
+    assert tool.name == "get_delivery_date"
+    assert tool.input == {"order_id": "1337"}
 
 
-# pytest.mark.parametrize("client", [OpenAI(), Client()])
-# ef test_openai_function_call(client):
-#   completion = client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Function!"}]
-#   )
-#   assert isinstance(completion, ChatCompletion)
-#   assert isinstance(completion.choices[0].message, ChatCompletionMessage)
-#   assert isinstance(
-#       completion.choices[0].message.tool_calls[0],  # type: ignore
-#       ChatCompletionMessageToolCall,
-#   )
-
-
-# pytest.mark.parametrize("client", [OpenAI(), Client()])
-# ef test_openai_programmed_function_call(client):
-#   completion = client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Function!"}]
-#   )
-#   assert isinstance(completion, ChatCompletion)
-#   assert isinstance(completion.choices[0].message, ChatCompletionMessage)
-#   assert isinstance(
-#       completion.choices[0].message.tool_calls[0],  # type: ignore
-#       ChatCompletionMessageToolCall,
-#   )
-
-
-# pytest.mark.asyncio
-# pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
-# sync def test_async_openai_function_call(client):
-#   completion = await client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Function!"}]
-#   )
-#   assert isinstance(completion, ChatCompletion)
-#   assert isinstance(completion.choices[0].message, ChatCompletionMessage)
-#   assert isinstance(
-#       completion.choices[0].message.tool_calls[0],  # type: ignore
-#       ChatCompletionMessageToolCall,
-#   )
-
-
-# pytest.mark.parametrize("client", [OpenAI(), Client()])
-# ef test_openai_function_call_stream(client):
-#   response = client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Function!"}], stream=True
-#   )
-#   completion = next(response)
-#   assert isinstance(completion, ChatCompletionChunk)
-#   assert isinstance(completion.choices[0].delta, ChoiceDelta)
-#   assert isinstance(
-#       completion.choices[0].delta.tool_calls[0],  # type: ignore
-#       ChoiceDeltaToolCall,
-#   )
-
-
-# pytest.mark.asyncio
-# pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
-# sync def test_async_openai_function_call_stream(client):
-#   response = await client.chat.completions.create(
-#       model="mock", messages=[{"role": "user", "content": "Function!"}], stream=True
-#   )
-#   completion = await anext(response)
-#   assert isinstance(completion, ChatCompletionChunk)
-#   assert isinstance(completion.choices[0].delta, ChoiceDelta)
-#   assert isinstance(
-#       completion.choices[0].delta.tool_calls[0],  # type: ignore
-#       ChoiceDeltaToolCall,
-#   )
+@pytest.mark.asyncio
+async def test_async_tool_call_stream(async_client_x):
+    generator = await async_client_x.messages.create(
+        model="mock",
+        messages=[{"role": "user", "content": "Where's my order?"}],
+        max_tokens=1024,
+        stream=True,
+    )
+    assert isinstance(generator, AsyncStream)
+    buffer = ""
+    async for chunk in generator:
+        if chunk.type == "content_block_delta":
+            buffer += chunk.delta.partial_json
+    assert json.loads(buffer) == {"order_id": "1337"}

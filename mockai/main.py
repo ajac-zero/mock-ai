@@ -3,6 +3,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
+from mockai.anthropic.router import anthropic_router
 from mockai.models import PreDeterminedResponses
 from mockai.openai.router import openai_router
 
@@ -19,3 +20,4 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(openai_router)
+app.include_router(anthropic_router)
