@@ -1,9 +1,9 @@
 # MockAI
 ***False LLM endpoints for testing***
 
-MockAI provides a local server that interops with many LLM SDKs, so you can call these APIs as normal but receive mock or pre-determined responses at no cost!
+MockAI provides a local server that interops with multiple LLM SDKs, so you can call these APIs as normal but receive mock or pre-determined responses at no cost!
 
-The package currently provides clients for OpenAI, MistralAI, and Cohere with full support for streaming and async, and a limited client for Anthropic (no streaming support yet). It patches these libraries directly under the hood, so it will always be up to date.
+The package currently provides full support for OpenAI and Anthropic. It patches these libraries directly under the hood, so it will always be up to date.
 
 ### Installation
 
@@ -13,6 +13,9 @@ pip install ai-mock
 
 # With poetry
 poetry add ai-mock
+
+# With uv
+uv add ai-mock
 ```
 
 ## Usage
@@ -22,7 +25,7 @@ This is the server that the mock clients will communicate with, we'll see later 
 
 ```bash
 # After installing MockAI 
-$ mockai-server 
+$ mockai 
 ```
 
 ### Chat Completions
@@ -55,32 +58,31 @@ print(response.choices[0].message.content)
 # By default, the response will be a copy of the
 # content of the last message in the conversation
 ```
-
-MockAI also provides clients for Cohere, Mistral and Anthropic:
+Alternatively, you can use the real SDK and set the base url to the MockAI server address
 
 ```python
-# from mistralai.client import MistralClient
-from mockai.mistralai.client import MistralClient
+from openai import OpenAI         # Real Client
 
-client = MistralClient()
+# The mockai server runs on port 8100 by default
+client = OpenAI(api_key="not used but required", base_url="http://localhost:8100/openai")
 
-response = client.chat(model="mistral-turbo", messages=[{"role": "user", "content": "Hi!"}])
+response = client.chat.completions.create(
+        model="gpt-5",
+        messages=[
+            {
+                "role": "user",
+                "content": "Hi Mock!"
+            }
+        ],
+        temperate = 0.7,
+        top_k = 0.95
+    )
 
 print(response.choices[0].message.content)
-# >> "Hi!"
+# >> "Hi Mock!"
 ```
 
-```python
-# from cohere import Client
-from mockai.cohere import Client
-
-client = Client()
-
-response = client.chat(model="Command-X", message="Hello!")
-
-print(response.text)
-# >> "Hello!"
-```
+MockAI also provides clients for Anthropic:
 
 ```python
 # from anthropic import Anthropic
@@ -101,10 +103,8 @@ And of course the async versions of all clients are supported:
 ```python
 from mockai.openai import AsyncOpenAI
 from mockai.anthropic import AsyncAnthropic
-from mockai.mistralai import MistralAsyncClient
-from mockai.cohere import AsynClient
 ```
-Streaming is supported as well for the OpenAI, MistralAI, and Cohere clients:
+Streaming is supported as well: 
 ```python
 from mockai.openai import OpenAI
 
@@ -134,7 +134,7 @@ for chunk in response:
 To learn more about the usage of each client, you can look at the docs of the respective provider, the mock clients are the exact same!
 
 ### Tool Calling
-All mock clients also work with tool calling! By default, a function call will be triggered if the substring "func" is found in the most recent message contents.
+All mock clients also work with tool calling! To trigger a tool call, you must specify it in a pre-determined response.
 
 ```python
 from mockai.openai import OpenAI
@@ -151,39 +151,44 @@ print(response.choices[0].message.tool_calls[0].function.name)
 print(response.choices[0].message.tool_calls[0].function.arguments)
 # >> "{"mock_arg": "mock_val"}"
 ```
-However, the default function is not useful at all, so let's see how to set up our own pre-determined responses!
 
 ## Configure responses
-The MockAI server takes an optional path to a JSON file were we can establish our responses for both completions and tool calls. The structure of the json is simple: Each key should be the the **content** of a user message, and the value is a dict with the wanted response.
+The MockAI server takes an optional path to a JSON file were we can establish our responses for both completions and tool calls. The structure of the json is simple: Each object must have a "type" key of value "text" or "function", an input key with a value, which is what will be matched against, and an output key, which is what will be returned if the input key matches the user input.
+
 ```json
 // mock_responses.json
-{
-  "Hello?": {
-    "type": "completion",
-    "content": "How are ya!"
+[
+  {
+    "type": "text",
+    "input": "How are ya?",
+    "output": "I'm fine, thank u 😊. How about you?"
   },
-  "What's the weather in San Fran": {
+  {
     "type": "function",
-    "name": "get_weather",
-    "arguments": {
-      "weather": "42 degrees Fahrenheit"
+    "input": "Where's my order?",
+    "output": {
+      "name": "get_delivery_date",
+      "arguments": {
+        "order_id": "1337"
+      }
     }
   }
-}
+]
 ```
 When creating your .json file, please follow these rules:
 
-1. Each response must have a `type` key, whose value must be either `completion` or `function`, this will determine the response object of the client.
-2. Responses of type `completion` must have a `content` key with the string response.
+1. Each response must have a `type` key, whose value must be either `text` or `function`, this will determine the response object of the client.
+2. Responses of type `text` must have a `output` key with a string value.
 3. Responses of type `function` must have a `name` key with the name of the function, and a `arguments` key with a dict of args and values (Example: {"weather": "42 degrees Fahrenheit"}).
+4. Responses of type `function` can accept a list of objects, to simulate parallel tool calls.
 
 ### Load the json file
-To create a MockAI server with our json file, we just need to pass it to the mockai-server command.
+To create a MockAI server with our json file, we just need to pass it to the mockai command.
 ```bash
-$ mockai-server mock_responses.json
+$ mockai mock_responses.json
 
 # The full file path can also be passed
-$ mockai-server ~/home/foo/bar/mock_responses.json
+$ mockai ~/home/foo/bar/mock_responses.json
 ```
 
 With this, our mock clients will have access to our pre-determined responses!
