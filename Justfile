@@ -16,3 +16,7 @@ test-anthropic:
 tidy:
   poetry run ruff check --fix
   poetry run ruff format
+
+publish:
+  poetry build
+  poetry publish
