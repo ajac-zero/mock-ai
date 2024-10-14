@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ai-mock"
-version = "0.2.0"
+version = "0.2.1"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
 packages = [{ "include" = "mockai" }]
@@ -9,11 +9,11 @@ license = "MIT"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-fastapi = { extras = ["standard"], version = "^0.111.0" }
-openai = { version = "^1.47.1", optional = true }
+fastapi = { extras = ["standard"], version = "^0.115.2" }
+openai = { version = "^1.51.2", optional = true }
 anthropic = { version = "^0.30.0", optional = true }
-mistralai = { version = "=0.4.1", optional = true }
-cohere = { version = "=5.8", optional = true }
+mistralai = { version = "^0.4.1", optional = true }
+cohere = { version = "^5.8.0", optional = true }
 
 [tool.poetry.extras]
 openai = ["openai"]
@@ -25,17 +25,11 @@ all = ["openai", "anthropic", "mistralai", "cohere"]
 [tool.poetry.scripts]
 mockai = "mockai.cli:cli"
 
-[tool.poe.tasks]
-test = "pytest -v"
-lint = "ruff check --fix"
-format = "ruff format"
-tidy = ["lint", "format"]
-
 [tool.poetry.group.dev.dependencies]
-pytest = "^8.2.2"
-pytest-asyncio = "^0.23.7"
 ruff = "^0.4.9"
-ipykernel = "^6.29.4"
+pytest = "^8.3.3"
+pytest-asyncio = "^0.23.7"
+ipykernel = "^6.29.5"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]

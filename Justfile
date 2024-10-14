@@ -12,3 +12,7 @@ test-openai:
 
 test-anthropic:
   poetry run pytest -v ./tests/test_anthropic.py
+
+tidy:
+  poetry run ruff check --fix
+  poetry run ruff format
