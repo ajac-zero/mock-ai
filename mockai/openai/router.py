@@ -92,7 +92,8 @@ def streaming_response(content: str | None, model: str, tool_calls: list[dict] |
         yield f"data: {json.dumps(chunk)}\n\n"
 
 
-@openai_router.post("/chat/completions")
+@openai_router.post("/chat/completions")  # OpenAI Endpoint
+@openai_router.post("/deployments/{path}/chat/completions")  # AzureOpenAI Endpoint
 def openai_chat_completion(request: Request, payload: Payload):
     model = payload.model
     stream = payload.stream

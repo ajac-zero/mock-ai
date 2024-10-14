@@ -1,5 +1,5 @@
 dev-server:
-  poetry run uvicorn main:app --app-dir ./mockai --port 8100
+  poetry run uvicorn main:app --app-dir ./mockai --port 8100 --reload
 
 test-server:
   poetry run mockai ./tests/responses.json
