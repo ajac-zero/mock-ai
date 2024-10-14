@@ -1,4 +1,5 @@
 import json
+import random
 from itertools import zip_longest
 from time import time
 from typing import cast
@@ -8,7 +9,7 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.exceptions import HTTPException
 
-from .models import Payload
+from .models import EmbeddingPayload, Payload
 
 openai_router = APIRouter(prefix="/openai")
 
@@ -140,3 +141,24 @@ def openai_chat_completion(request: Request, payload: Payload):
     else:
         response = streaming_response(content, model, tool_calls)
         return StreamingResponse(response)
+
+
+@openai_router.post("/embeddings")
+@openai_router.post("/deployments/{path}/embeddings")  # AzureOpenAI Endpoint
+def openai_create_embeddings(payload: EmbeddingPayload):
+    return {
+        "object": "list",
+        "data": [
+            {
+                "object": "embedding",
+                "embedding": [random.uniform(-1, 1) for _ in input],
+                "index": number,
+            }
+            for number, input in enumerate(payload.input_list)
+        ],
+        "model": payload.model,
+        "usage": {
+            "prompt_tokens": 0,
+            "total_tokens": 0,
+        },
+    }

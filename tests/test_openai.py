@@ -1,4 +1,5 @@
 import pytest
+from openai.types import CreateEmbeddingResponse
 from openai.types.chat import (
     ChatCompletion,
     ChatCompletionChunk,
@@ -7,10 +8,17 @@ from openai.types.chat import (
 )
 from openai.types.chat.chat_completion_chunk import ChoiceDelta, ChoiceDeltaToolCall
 
-from mockai.openai import AsyncClient, AsyncOpenAI, Client, OpenAI
+from mockai.openai import (
+    AsyncAzureOpenAI,
+    AsyncClient,
+    AsyncOpenAI,
+    AzureOpenAI,
+    Client,
+    OpenAI,
+)
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_chat_completion(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}]
@@ -20,7 +28,7 @@ def test_openai_chat_completion(client):
     assert isinstance(completion.choices[0].message.content, str)
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_chat_programmed_completion(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "How are ya?"}]
@@ -33,7 +41,7 @@ def test_openai_chat_programmed_completion(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
 async def test_async_openai_chat_completion(client):
     completion = await client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}]
@@ -44,7 +52,7 @@ async def test_async_openai_chat_completion(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
 async def test_async_openai_chat_programmed_completion(client):
     completion = await client.chat.completions.create(
         model="mock",
@@ -61,7 +69,7 @@ async def test_async_openai_chat_programmed_completion(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_chat_completion_stream(client):
     response = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], stream=True
@@ -72,7 +80,7 @@ def test_openai_chat_completion_stream(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
 async def test_async_openai_chat_completion_stream(client):
     response = await client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], stream=True
@@ -82,7 +90,7 @@ async def test_async_openai_chat_completion_stream(client):
     assert isinstance(completion.choices[0].delta.content, str)
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
@@ -95,7 +103,7 @@ def test_openai_function_call(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_programmed_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
@@ -109,7 +117,7 @@ def test_openai_programmed_function_call(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
 async def test_async_openai_function_call(client):
     completion = await client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
@@ -122,7 +130,7 @@ async def test_async_openai_function_call(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client()])
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_function_call_stream(client):
     response = client.chat.completions.create(
         model="mock",
@@ -139,7 +147,7 @@ def test_openai_function_call_stream(client):
 
 
 @pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient()])
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
 async def test_async_openai_function_call_stream(client):
     response = await client.chat.completions.create(
         model="mock",
@@ -153,3 +161,50 @@ async def test_async_openai_function_call_stream(client):
         completion.choices[0].delta.tool_calls[0],  # type: ignore
         ChoiceDeltaToolCall,
     )
+
+
+# Embeddings
+
+
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
+def test_openai_embedding(client):
+    response = client.embeddings.create(model="mock", input="hello")
+    assert isinstance(response, CreateEmbeddingResponse)
+    assert len(response.data) == 1
+    assert len(response.data[0].embedding) == 5
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
+async def test_async_embedding(client):
+    response = await client.embeddings.create(model="mock", input="hello")
+    assert isinstance(response, CreateEmbeddingResponse)
+    assert len(response.data) == 1
+    assert len(response.data[0].embedding) == 5
+
+
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
+def test_openai_embedding_list(client):
+    input_list = ["hiii", "my", "name", "is", "joe"]
+
+    response = client.embeddings.create(model="mock", input=input_list)
+    assert isinstance(response, CreateEmbeddingResponse)
+    assert len(response.data) == 5
+
+    for i, data in enumerate(response.data):
+        assert data.index == i
+        assert len(data.embedding) == len(input_list[i])
+
+
+@pytest.mark.asyncio
+@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
+async def test_async_embedding_list(client):
+    input_list = ["hiii", "my", "name", "is", "joe"]
+
+    response = await client.embeddings.create(model="mock", input=input_list)
+    assert isinstance(response, CreateEmbeddingResponse)
+    assert len(response.data) == 5
+
+    for i, data in enumerate(response.data):
+        assert data.index == i
+        assert len(data.embedding) == len(input_list[i])

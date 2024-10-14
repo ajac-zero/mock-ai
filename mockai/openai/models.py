@@ -41,3 +41,17 @@ class Payload(BaseModel):
         if len(self.messages) == 0:
             raise ValueError("messages array can't be empty.")
         return self
+
+
+class EmbeddingPayload(BaseModel):
+    model: str
+    input: str | list[str]
+
+    model_config = ConfigDict(extra="allow")
+
+    @property
+    def input_list(self) -> list[str]:
+        if isinstance(self.input, str):
+            return [self.input]
+        else:
+            return self.input
