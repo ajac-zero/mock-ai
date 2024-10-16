@@ -204,7 +204,7 @@ def test_openai_embedding(client):
     response = client.embeddings.create(model="mock", input="hello")
     assert isinstance(response, CreateEmbeddingResponse)
     assert len(response.data) == 1
-    assert len(response.data[0].embedding) == 5
+    assert len(response.data[0].embedding) == 1536
 
 
 @pytest.mark.asyncio
@@ -213,7 +213,7 @@ async def test_async_embedding(client):
     response = await client.embeddings.create(model="mock", input="hello")
     assert isinstance(response, CreateEmbeddingResponse)
     assert len(response.data) == 1
-    assert len(response.data[0].embedding) == 5
+    assert len(response.data[0].embedding) == 1536
 
 
 @pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
@@ -226,7 +226,7 @@ def test_openai_embedding_list(client):
 
     for i, data in enumerate(response.data):
         assert data.index == i
-        assert len(data.embedding) == len(input_list[i])
+        assert len(data.embedding) == 1536
 
 
 @pytest.mark.asyncio
@@ -240,4 +240,4 @@ async def test_async_embedding_list(client):
 
     for i, data in enumerate(response.data):
         assert data.index == i
-        assert len(data.embedding) == len(input_list[i])
+        assert len(data.embedding) == 1536

@@ -12,9 +12,10 @@ dir_path = os.path.dirname(os.path.realpath(__file__))
 
 @click.command()
 @click.argument("responses", type=click.File("rb"), required=False)
+@click.option("--embedding-size", "-E", default=1536)
 @click.option("--host", "-h", default="127.0.0.1")
 @click.option("--port", "-p", default=8100)
-def cli(host, port, responses):
+def cli(responses, embedding_size, host, port):
     if responses:
         print(f"Reading pre-determined responses from {responses.name}.")
 
@@ -30,8 +31,9 @@ def cli(host, port, responses):
             raise click.BadParameter(
                 f"Error validating responses. Make sure the follow the proper structure: {e}"
             )
-
         os.environ["MOCKAI_RESPONSES"] = json.dumps(responses_data)
+
+    os.environ["MOCKAI_EMBEDDING_SIZE"] = str(embedding_size)
 
     print(f"Starting MockAI server ...")
     subprocess.run(

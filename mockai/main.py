@@ -11,8 +11,10 @@ from mockai.openai.router import openai_router
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mockai_responses = os.getenv("MOCKAI_RESPONSES", "[]")
+    mockai_embedding_size = os.environ["MOCKAI_EMBEDDING_SIZE"]
 
     app.state.responses = PreDeterminedResponses.validate_json(mockai_responses)
+    app.state.embedding_size = int(mockai_embedding_size)
 
     yield
 

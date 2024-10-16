@@ -145,18 +145,20 @@ def openai_chat_completion(request: Request, payload: Payload):
         return StreamingResponse(response)
 
 
-@openai_router.post("/embeddings")
+@openai_router.post("/embeddings")  # OpenAI Endpoint
 @openai_router.post("/deployments/{path}/embeddings")  # AzureOpenAI Endpoint
-def openai_create_embeddings(payload: EmbeddingPayload):
+def openai_create_embeddings(request: Request, payload: EmbeddingPayload):
+    embedding_range = range(request.app.state.embedding_size)
+    input_range = range(len((payload.input_list)))
     return {
         "object": "list",
         "data": [
             {
                 "object": "embedding",
-                "embedding": [random.uniform(-1, 1) for _ in input],
+                "embedding": [random.uniform(-1, 1) for _ in embedding_range],
                 "index": number,
             }
-            for number, input in enumerate(payload.input_list)
+            for number in input_range
         ],
         "model": payload.model,
         "usage": {
