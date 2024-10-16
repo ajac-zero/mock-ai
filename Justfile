@@ -25,3 +25,9 @@ tidy:
 publish:
   poetry build
   poetry publish
+
+push VERSION:
+  docker build -t ajaczero/mock-ai:{{VERSION}} .
+  docker tag ajaczero/mock-ai:{{VERSION}} ajaczero/mock-ai:latest
+  docker push ajaczero/mock-ai:{{VERSION}}
+  docker push ajaczero/mock-ai:latest
