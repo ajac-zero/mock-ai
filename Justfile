@@ -1,6 +1,11 @@
+default:
+  just --list
+
+# Start development server with hot-reload
 dev-server:
   poetry run uvicorn main:app --app-dir ./mockai --port 8100 --reload
 
+# Start test server with pre-determined responses
 test-server:
   poetry run mockai ./tests/responses.json
 
