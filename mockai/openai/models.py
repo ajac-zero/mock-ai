@@ -23,8 +23,8 @@ class Content(BaseModel):
 
 
 class Message(BaseModel):
-    role: Literal["system", "user", "assistant"]
-    content: str | list[Content]
+    role: Literal["system", "user", "assistant", "tool"]
+    content: str | list[Content] | None = None
 
     model_config = ConfigDict(extra="allow")
 

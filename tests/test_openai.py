@@ -104,6 +104,39 @@ def test_openai_function_call(client):
 
 
 @pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
+def test_openai_function_call_followup(client):
+    completion = client.chat.completions.create(
+        model="mock",
+        messages=[
+            {"role": "user", "content": "Where's my order?"},
+            {
+                "role": "assistant",
+                "tool_calls": [
+                    {
+                        "id": "call_123",
+                        "type": "function",
+                        "function": {
+                            "name": "get_delivery_date",
+                            "arguments": "{'order_id': '1337'}",
+                        },
+                    }
+                ],
+            },
+            {
+                "role": "tool",
+                "content": "{'order_id': '1337', 'delivery_date': '25/10/2024'}",
+                "tool_call_id": "call_123",
+            },
+        ],
+    )
+    assert isinstance(completion, ChatCompletion)
+
+    message = completion.choices[0].message
+    assert isinstance(message, ChatCompletionMessage)
+    assert message.content == "Your order will arrive the 25th of October."
+
+
+@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_programmed_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]

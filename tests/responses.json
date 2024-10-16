@@ -13,5 +13,10 @@
         "order_id": "1337"
       }
     }
+  },
+  {
+    "type": "text",
+    "input": "{'order_id': '1337', 'delivery_date': '25/10/2024'}",
+    "output": "Your order will arrive the 25th of October."
   }
 ]

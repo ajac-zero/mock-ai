@@ -99,6 +99,8 @@ def openai_chat_completion(request: Request, payload: Payload):
     model = payload.model
     stream = payload.stream
     content = payload.messages[-1].content
+    if content is None:
+        raise ValueError("Content from last message cannot be None")
     tool_calls = None
 
     if type(content) == list:
