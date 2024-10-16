@@ -2,6 +2,6 @@ FROM ghcr.io/astral-sh/uv:python3.12-alpine
 
 WORKDIR /app
 
-ENTRYPOINT ["uvx", "--from=ai-mock", "mockai"]
+RUN uv pip install ai-mock --system --no-cache
 
-CMD ["-h", "0.0.0.0"]
+ENTRYPOINT ["mockai", "-h", "0.0.0.0"]
