@@ -10,7 +10,11 @@
     "output": {
       "name": "get_delivery_date",
       "arguments": {
-        "order_id": "1337"
+        "order_id": "1337",
+        "order_loc": [
+          "New York",
+          "Mexico City"
+        ]
       }
     }
   },

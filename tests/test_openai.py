@@ -65,7 +65,7 @@ async def test_async_openai_chat_programmed_completion(client):
     )
     assert (
         completion.choices[0].message.tool_calls[0].function.arguments  # type: ignore
-        == {"order_id": "1337"}
+        == {"order_id": "1337", "order_loc": ["New York", "Mexico City"]}
     )
 
 

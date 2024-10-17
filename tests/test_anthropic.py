@@ -63,7 +63,7 @@ def test_tool_call(client_x):
     tool = response.content[0]
     assert isinstance(tool, ToolUseBlock)
     assert tool.name == "get_delivery_date"
-    assert tool.input == {"order_id": "1337"}
+    assert tool.input == {"order_id": "1337", "order_loc": ["New York", "Mexico City"]}
 
 
 def test_tool_call_stream(client_x):
@@ -78,7 +78,10 @@ def test_tool_call_stream(client_x):
     for chunk in generator:
         if chunk.type == "content_block_delta":
             buffer += chunk.delta.partial_json
-    assert json.loads(buffer) == {"order_id": "1337"}
+    assert json.loads(buffer) == {
+        "order_id": "1337",
+        "order_loc": ["New York", "Mexico City"],
+    }
 
 
 @pytest.mark.asyncio
@@ -102,7 +105,10 @@ async def test_predefined_async_message(async_client_x):
     assert isinstance(completion, Message)
     assert isinstance(completion.content[0], ToolUseBlock)
     assert completion.content[0].name == "get_delivery_date"
-    assert completion.content[0].input == {"order_id": "1337"}
+    assert completion.content[0].input == {
+        "order_id": "1337",
+        "order_loc": ["New York", "Mexico City"],
+    }
 
 
 @pytest.mark.asyncio
@@ -131,7 +137,7 @@ async def test_async_tool_call(async_client_x):
     tool = response.content[0]
     assert isinstance(tool, ToolUseBlock)
     assert tool.name == "get_delivery_date"
-    assert tool.input == {"order_id": "1337"}
+    assert tool.input == {"order_id": "1337", "order_loc": ["New York", "Mexico City"]}
 
 
 @pytest.mark.asyncio
@@ -147,4 +153,7 @@ async def test_async_tool_call_stream(async_client_x):
     async for chunk in generator:
         if chunk.type == "content_block_delta":
             buffer += chunk.delta.partial_json
-    assert json.loads(buffer) == {"order_id": "1337"}
+    assert json.loads(buffer) == {
+        "order_id": "1337",
+        "order_loc": ["New York", "Mexico City"],
+    }
