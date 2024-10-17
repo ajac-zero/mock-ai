@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ai-mock"
-version = "0.2.3"
+version = "0.2.4"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
 packages = [{ "include" = "mockai" }]
