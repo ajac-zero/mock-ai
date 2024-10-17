@@ -28,8 +28,9 @@ def cli(responses, embedding_size, host, port):
             for response in responses_data:
                 PreDeterminedResponse.model_validate(response)
         except pydantic.ValidationError as e:
+            error = e.errors()[0]
             raise click.BadParameter(
-                f"Error validating responses. Make sure the follow the proper structure: {e}"
+                f"Error validating responses. Make sure they follow the proper structure.\nProblematic input: {error['input']}\nFix: {error['msg']}"
             )
         os.environ["MOCKAI_RESPONSES"] = json.dumps(responses_data)
 
