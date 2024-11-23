@@ -1,6 +1,6 @@
 from typing import Any, Literal, TypeAlias
 
-from pydantic import BaseModel, TypeAdapter, model_validator
+from pydantic import BaseModel, RootModel, TypeAdapter, model_validator
 
 ResponseType: TypeAlias = Literal["text", "function"]
 
@@ -9,11 +9,30 @@ class FunctionOutput(BaseModel):
     name: str
     arguments: dict[str, Any]
 
+    def _to_dict_list(self):
+        return [self.model_dump()]
+
+    def _to_list(self):
+        return [self]
+
+
+class FunctionOutputs(RootModel):
+    root: list[FunctionOutput]
+
+    def __iter__(self):  # type: ignore
+        return iter(self.root)
+
+    def _to_dict_list(self):
+        return self.model_dump()
+
+    def _to_list(self):
+        return self.root
+
 
 class PreDeterminedResponse(BaseModel):
     type: ResponseType
     input: str
-    output: str | FunctionOutput | list[FunctionOutput]
+    output: str | FunctionOutput | FunctionOutputs
 
     @model_validator(mode="after")
     def verify_structure(self) -> "PreDeterminedResponse":

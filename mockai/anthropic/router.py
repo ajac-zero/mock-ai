@@ -1,12 +1,12 @@
 import json
 from uuid import uuid4
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.exceptions import HTTPException
 
 from mockai.anthropic.models import Payload, anthropic_tool
-from mockai.models import FunctionOutput, PreDeterminedResponse
+from mockai.dependencies import ResponseFile
 
 anthropic_router = APIRouter(prefix="/anthropic")
 
@@ -104,7 +104,7 @@ def streaming_response(response_array, model: str):
 
 
 @anthropic_router.post("/v1/messages")
-def anthropic_messages(request: Request, payload: Payload):
+def anthropic_messages(payload: Payload, responses: ResponseFile):
     model = payload.model
     stream = payload.stream
     # Get content from last message
@@ -126,22 +126,18 @@ def anthropic_messages(request: Request, payload: Payload):
     response_array = [{"type": "text", "text": content}]
 
     # Check predetermined responses for matching inputs
-    responses: list[PreDeterminedResponse] = request.app.state.responses
-    for response in responses:
-        if content == response.input:
-            if response.type == "text":
-                response_array = [{"type": "text", "text": response.output}]
+    if responses is not None:
+        for response in responses:
+            if content == response.input:
+                if response.type == "text":
+                    response_array = [{"type": "text", "text": response.output}]
 
-            elif response.type == "function":
-                output = response.output
+                elif response.type == "function":
+                    if isinstance(output := response.output, str):
+                        raise ValueError("Impossible state")
 
-                if type(output) == list:
-                    response_array = [anthropic_tool(m) for m in output]
-                elif type(output) is FunctionOutput:
-                    response_array = [anthropic_tool(output)]
-                else:
-                    raise ValueError("Invalid function")
-            break
+                    response_array = [anthropic_tool(m) for m in output._to_list()]
+                break
 
     if stream is None or stream is False:
         response = json_response(response_array, model)

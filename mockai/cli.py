@@ -32,7 +32,7 @@ def cli(responses, embedding_size, host, port):
             raise click.BadParameter(
                 f"Error validating responses. Make sure they follow the proper structure.\nProblematic input: {error['input']}\nFix: {error['msg']}"
             )
-        os.environ["MOCKAI_RESPONSES"] = json.dumps(responses_data)
+        os.environ["MOCKAI_RESPONSES"] = responses.name
 
     os.environ["MOCKAI_EMBEDDING_SIZE"] = str(embedding_size)
 

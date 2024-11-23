@@ -9,7 +9,8 @@ from fastapi import APIRouter, Request
 from fastapi.responses import JSONResponse, StreamingResponse
 from starlette.exceptions import HTTPException
 
-from .models import EmbeddingPayload, Payload
+from mockai.dependencies import ResponseFile
+from mockai.openai.models import EmbeddingPayload, Payload
 
 openai_router = APIRouter(prefix="/openai")
 
@@ -95,7 +96,7 @@ def streaming_response(content: str | None, model: str, tool_calls: list[dict] |
 
 @openai_router.post("/chat/completions")  # OpenAI Endpoint
 @openai_router.post("/deployments/{path}/chat/completions")  # AzureOpenAI Endpoint
-def openai_chat_completion(request: Request, payload: Payload):
+def openai_chat_completion(payload: Payload, responses: ResponseFile):
     model = payload.model
     stream = payload.stream
     content = payload.messages[-1].content
@@ -114,28 +115,30 @@ def openai_chat_completion(request: Request, payload: Payload):
                 "Content array must include at least one object with 'type' = 'text'",
             )
 
-    content = cast(str, content)
+    if responses is not None:
+        for response in responses:
+            if content == response.input:
+                if response.type == "text":
+                    content = response.output
+                elif response.type == "function":
+                    content = None
 
-    for response in request.app.state.responses:
-        if content == response.input:
-            if response.type == "text":
-                content = response.output
-            elif response.type == "function":
-                content = None
-                output = response.output
-                if type(output) == list:
-                    tool_calls = [m.model_dump() for m in output]
-                else:
-                    tool_calls = [output.model_dump()]
-                for tool_call in tool_calls:
-                    tool_call["id"] = str(uuid4())
-                    tool_call["type"] = "function"
-                    function = {
-                        "name": tool_call.pop("name"),
-                        "arguments": tool_call.pop("arguments"),
-                    }
-                    tool_call["function"] = function
-            break
+                    if isinstance(response.output, str):
+                        raise ValueError("Impossible state")
+
+                    tool_calls = response.output._to_dict_list()
+
+                    for tool_call in tool_calls:
+                        tool_call["id"] = str(uuid4())
+                        tool_call["type"] = "function"
+                        function = {
+                            "name": tool_call.pop("name"),
+                            "arguments": tool_call.pop("arguments"),
+                        }
+                        tool_call["function"] = function
+                break
+
+    content = cast(str, content)
 
     if stream is None or stream is False:
         response = json_response(content, model, tool_calls)
