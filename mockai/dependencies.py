@@ -17,16 +17,3 @@ async def read_response_file():
 
 
 ResponseFile = Annotated[PreDeterminedResponses | None, Depends(read_response_file)]
-
-
-async def write_response_file():
-    if file := os.getenv("MOCKAI_RESPONSES"):
-        async with aiofiles.open(file, "w") as f:
-            yield f
-    else:
-        raise ValueError("No response file set.")
-
-
-WriteFile = Annotated[
-    aiofiles.threadpool.text.AsyncTextIOWrapper, Depends(write_response_file)
-]

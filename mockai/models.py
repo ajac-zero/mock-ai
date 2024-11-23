@@ -60,3 +60,6 @@ class PreDeterminedResponses(RootModel):
 
     def __iter__(self):  # type: ignore
         return iter(self.root)
+
+    def __setitem__(self, idx, item):
+        self.root[idx] = item
