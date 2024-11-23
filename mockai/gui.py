@@ -7,9 +7,13 @@ import streamlit as st
 from mockai.models import FunctionOutput, PreDeterminedResponse, PreDeterminedResponses
 
 
+def generate_key():
+    return uuid.uuid4().hex
+
+
 def create_sample_function_output():
     return FunctionOutput(
-        name=f"example_function {uuid.uuid4()}",
+        name="example_function",
         arguments={"example_key": "example_value"},
     )
 
@@ -34,39 +38,40 @@ def function_output(output: FunctionOutput | list[FunctionOutput]):
 
     st.text("Output")
 
-    st.form_submit_button(
-        f"Add function (ID {uuid.uuid4()})",
+    st.button(
+        "Add function",
         on_click=output.append(create_sample_function_output()),
+        key=generate_key(),
     )
 
     for o in output:
         with st.expander(o.name):
-            o.name = st.text_input("name", o.name, key=uuid.uuid4().hex)
+            o.name = st.text_input("name", o.name, key=generate_key())
 
             clone = o.arguments.copy()
             for k, v in clone.items():
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    new_key = st.text_input("key", k)
+                    new_key = st.text_input("key", k, key=generate_key())
 
                 with col2:
-                    new_value = st.text_input("value", v)
+                    new_value = st.text_input("value", v, key=generate_key())
 
                 o.arguments[k] = new_value
                 o.arguments[new_key] = o.arguments.pop(k)
 
-            st.form_submit_button(f"Add field (ID {uuid.uuid4()})")
+            st.button("Add field", key=generate_key())
 
     return output
 
 
 def form_component(n, r_type, input, output):
-    with st.form(f"Response {n}", border=False):
-        input = st.text_input("Input", input)
+    with st.container(border=False):
+        input = st.text_input("Input", input, key=generate_key())
 
         if r_type == "text":
-            output = st.text_input("Output", output)
+            output = st.text_input("Output", output, key=generate_key())
         else:
             try:
                 output = function_output(output)
@@ -76,31 +81,27 @@ def form_component(n, r_type, input, output):
         col1, col2 = st.columns(2)
 
         with col1:
-            update = st.form_submit_button("Update")
+            if st.button("Update", key=generate_key()):
+                responses[n].input = input
+                responses[n].output = output
+
+                write_responses_to_file(responses)
+
+                success = st.success("Response updated!", icon="✅")
+                time.sleep(3)
+                success.empty()
 
         with col2:
-            delete = st.form_submit_button("Delete")
+            if st.button("Delete", key=generate_key()):
+                responses.pop(n)
 
-        if update:
-            responses[n].input = input
-            responses[n].output = output
+                write_responses_to_file(responses)
 
-            write_responses_to_file(responses)
+                success = st.success("Response deleted!", icon="✅")
+                time.sleep(3)
+                success.empty()
 
-            success = st.success("Response updated!", icon="✅")
-            time.sleep(3)
-            success.empty()
-
-        if delete:
-            responses.pop(n)
-
-            write_responses_to_file(responses)
-
-            success = st.success("Response deleted!", icon="✅")
-            time.sleep(3)
-            success.empty()
-
-            st.rerun()
+                st.rerun()
 
 
 if __name__ == "__main__":
@@ -120,7 +121,7 @@ if __name__ == "__main__":
                 "Type",
                 ["text", "function"],
                 0 if response.type == "text" else 1,
-                key=f"sb-{idx}",
+                key=generate_key(),
             )
 
             form_component(idx, r_type, response.input, response.output)
