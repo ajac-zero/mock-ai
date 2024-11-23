@@ -1,6 +1,6 @@
 from typing import Any, Literal, TypeAlias
 
-from pydantic import BaseModel, RootModel, TypeAdapter, model_validator
+from pydantic import BaseModel, RootModel, model_validator
 
 ResponseType: TypeAlias = Literal["text", "function"]
 
@@ -55,4 +55,8 @@ class PreDeterminedResponse(BaseModel):
         return self
 
 
-PreDeterminedResponses = TypeAdapter(list[PreDeterminedResponse])
+class PreDeterminedResponses(RootModel):
+    root: list[PreDeterminedResponse]
+
+    def __iter__(self):  # type: ignore
+        return iter(self.root)

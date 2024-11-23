@@ -5,7 +5,7 @@ import subprocess
 import click
 import pydantic
 
-from mockai.models import PreDeterminedResponse
+from mockai.models import PreDeterminedResponses
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -25,8 +25,7 @@ def cli(responses, embedding_size, host, port):
             raise click.BadParameter("Error reading JSON file: Is it valid JSON?")
 
         try:
-            for response in responses_data:
-                PreDeterminedResponse.model_validate(response)
+            PreDeterminedResponses.model_validate(responses_data)
         except pydantic.ValidationError as e:
             error = e.errors()[0]
             raise click.BadParameter(
