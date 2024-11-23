@@ -34,6 +34,16 @@
     console.log(response);
   }
 
+  async function delete_responses() {
+    let url = new URL("http://localhost:8100/api/responses/delete");
+    url.search = new URLSearchParams({ number: String(number) }).toString();
+
+    let res = await fetch(url, { method: "DELETE" });
+    console.log(res.status);
+
+    window.location.reload();
+  }
+
   onMount(change_type);
 </script>
 
@@ -89,14 +99,27 @@
       ></textarea>
     </div>
 
-    <!-- Update Button -->
-    <div class="text-right">
-      <button
-        class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
-        onclick={update_responses}
-      >
-        Update
-      </button>
+    <!-- Button Container -->
+    <div class="flex space-x-4 justify-end">
+      <!-- Update Button -->
+      <div>
+        <button
+          class="bg-blue-500 text-white px-4 py-2 rounded-md shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-offset-2"
+          onclick={update_responses}
+        >
+          Update
+        </button>
+      </div>
+
+      <!-- Delete Button -->
+      <div>
+        <button
+          class="bg-red-500 text-white px-4 py-2 rounded-md shadow hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-offset-2"
+          onclick={delete_responses}
+        >
+          Delete
+        </button>
+      </div>
     </div>
   </div>
 </div>

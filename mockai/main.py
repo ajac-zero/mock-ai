@@ -1,4 +1,3 @@
-from inspect import indentsize
 import os
 from contextlib import asynccontextmanager
 
@@ -37,7 +36,22 @@ app.include_router(openai_router)
 app.include_router(anthropic_router)
 
 
-@app.get("/api/responses/get")
+@app.get("/api/responses/create")
+async def create_response(responses: ResponseFile):
+    if responses is None:
+        raise HTTPException(400, "No response file to update.")
+
+    responses.append(PreDeterminedResponse(type="text", input="", output=""))
+
+    if file := os.getenv("MOCKAI_RESPONSES"):
+        async with aiofiles.open(file, "w") as f:
+            await f.write(responses.model_dump_json(indent=2))
+        return responses
+    else:
+        raise ValueError("No response file set.")
+
+
+@app.get("/api/responses/read")
 async def get_responses(file: ResponseFile):
     return file
 
@@ -57,6 +71,21 @@ async def update_response(data: ResponseUpdate, responses: ResponseFile):
     if file := os.getenv("MOCKAI_RESPONSES"):
         async with aiofiles.open(file, "w") as f:
             await f.write(responses.model_dump_json(indent=2))
-        return data
+        return responses
+    else:
+        raise ValueError("No response file set.")
+
+
+@app.delete("/api/responses/delete")
+async def delete_response(number: int, responses: ResponseFile):
+    if responses is None:
+        raise HTTPException(400, "No response file to update.")
+
+    responses.pop(number - 1)
+
+    if file := os.getenv("MOCKAI_RESPONSES"):
+        async with aiofiles.open(file, "w") as f:
+            await f.write(responses.model_dump_json(indent=2))
+        return responses
     else:
         raise ValueError("No response file set.")

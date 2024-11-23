@@ -63,3 +63,9 @@ class PreDeterminedResponses(RootModel):
 
     def __setitem__(self, idx, item):
         self.root[idx] = item
+
+    def pop(self, idx):
+        self.root.pop(idx)
+
+    def append(self, response: PreDeterminedResponse):
+        self.root.append(response)
