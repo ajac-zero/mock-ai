@@ -1,11 +1,12 @@
 import os
 from contextlib import asynccontextmanager
 
+import aiofiles
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
-import aiofiles
 
 from mockai.anthropic.router import anthropic_router
 from mockai.dependencies import ResponseFile
@@ -34,6 +35,9 @@ app.add_middleware(
 
 app.include_router(openai_router)
 app.include_router(anthropic_router)
+
+dir = os.path.dirname(os.path.realpath(__file__))
+app.mount("/gui", StaticFiles(directory=f"{dir}/gui", html=True), name="gui")
 
 
 @app.get("/api/responses/create")

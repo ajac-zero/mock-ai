@@ -1,5 +1,6 @@
 <script>
   import { onMount } from "svelte";
+  import { API_URL } from "../state.svelte";
 
   let { number, select_choice = "text", input = "", output = "" } = $props();
 
@@ -22,24 +23,21 @@
         output: output,
       },
     };
-    console.log(body);
-    let res = await fetch("http://localhost:8100/api/responses/update", {
+    let res = await fetch(API_URL + "/responses/update", {
       method: "POST",
       body: JSON.stringify(body),
       headers: {
         "Content-Type": "application/json",
       },
     });
-    let response = await res.json();
-    console.log(response);
+    await res.json();
+
+    window.location.reload();
   }
 
   async function delete_responses() {
-    let url = new URL("http://localhost:8100/api/responses/delete");
-    url.search = new URLSearchParams({ number: String(number) }).toString();
-
-    let res = await fetch(url, { method: "DELETE" });
-    console.log(res.status);
+    let url = API_URL + "/responses/delete?number=" + String(number);
+    await fetch(url, { method: "DELETE" });
 
     window.location.reload();
   }

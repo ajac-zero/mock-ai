@@ -1,16 +1,17 @@
 <script>
   import ResponseForm from "./lib/ResponseForm.svelte";
   import { onMount } from "svelte";
+  import { API_URL } from "./state.svelte";
 
   let responses;
 
   async function get_responses() {
-    let res = await fetch("http://localhost:8100/api/responses/read");
+    let res = await fetch(API_URL + "/responses/read");
     return await res.json();
   }
 
   async function add_response() {
-    await fetch("http://localhost:8100/api/responses/create");
+    await fetch(API_URL + "/responses/create");
     window.location.reload();
   }
 

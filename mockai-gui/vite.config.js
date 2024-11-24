@@ -4,4 +4,9 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [svelte()],
+  base: '/gui/',
+  build: {
+    outDir: "../mockai/gui",
+    emptyOutDir: true
+  }
 })
