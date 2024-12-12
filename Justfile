@@ -7,7 +7,7 @@ dev-server:
 
 # Start test server with pre-determined responses
 test-server:
-  @poetry run mockai ./tests/responses.json
+  @poetry run server ./tests/responses.json
 
 test-all:
   @poetry run pytest -q

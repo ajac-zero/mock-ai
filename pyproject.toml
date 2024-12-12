@@ -24,7 +24,7 @@ cohere = ["cohere"]
 all = ["openai", "anthropic", "mistralai", "cohere"]
 
 [tool.poetry.scripts]
-mockai = "mockai.cli:cli"
+server = "mockai.cli:cli"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.9"

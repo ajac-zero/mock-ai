@@ -6,4 +6,4 @@ RUN uv pip install ai-mock --system --no-cache
 
 EXPOSE 8100
 
-ENTRYPOINT ["mockai", "-h", "0.0.0.0"]
+ENTRYPOINT ["server", "-h", "0.0.0.0"]
