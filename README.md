@@ -1,4 +1,5 @@
 # MockAI
+
 ***False LLM endpoints for testing***
 
 MockAI provides a local server that interops with multiple LLM SDKs, so you can call these APIs as normal but receive mock or pre-determined responses at no cost!
@@ -21,20 +22,26 @@ uv add ai-mock
 ## Usage
 
 ### Start the MockAI server
+
 This is the server that the mock clients will communicate with, we'll see later how we can configure our own pre-determined responses :).
 
 ```bash
 # After installing MockAI 
-$ mockai 
+$ server
+
+# Or without installing with uvx
+$ uvx ai-mock server
 ```
 
 ### Chat Completions
+
 To use a mock version of these providers, you only have to change a single line of code (and just barely!):
 
 ```diff
 - from openai import OpenAI         # Real Client
 + from mockai.openai import OpenAI  # Fake Client
 ```
+
 ```python
 # Rest of the code remains the exact same!
 client = OpenAI()
@@ -58,6 +65,7 @@ print(response.choices[0].message.content)
 # By default, the response will be a copy of the
 # content of the last message in the conversation
 ```
+
 Alternatively, you can use the real SDK and set the base url to the MockAI server address
 
 ```python
@@ -99,12 +107,16 @@ response = client.messages.create(
 print(response.content)
 # >> "What's up!"
 ```
+
 And of course the async versions of all clients are supported:
+
 ```python
 from mockai.openai import AsyncOpenAI
 from mockai.anthropic import AsyncAnthropic
 ```
-Streaming is supported as well: 
+
+Streaming is supported as well:
+
 ```python
 from mockai.openai import OpenAI
 
@@ -134,6 +146,7 @@ for chunk in response:
 To learn more about the usage of each client, you can look at the docs of the respective provider, the mock clients are the exact same!
 
 ### Tool Calling
+
 All mock clients also work with tool calling! To trigger a tool call, you must specify it in a pre-determined response.
 
 ```python
@@ -153,6 +166,7 @@ print(response.choices[0].message.tool_calls[0].function.arguments)
 ```
 
 ## Configure responses
+
 The MockAI server takes an optional path to a JSON file were we can establish our responses for both completions and tool calls. The structure of the json is simple: Each object must have a "type" key of value "text" or "function", an input key with a value, which is what will be matched against, and an output key, which is what will be returned if the input key matches the user input.
 
 ```json
@@ -175,6 +189,7 @@ The MockAI server takes an optional path to a JSON file were we can establish ou
   }
 ]
 ```
+
 When creating your .json file, please follow these rules:
 
 1. Each response must have a `type` key, whose value must be either `text` or `function`, this will determine the response object of the client.
@@ -183,7 +198,9 @@ When creating your .json file, please follow these rules:
 4. Responses of type `function` can accept a list of objects, to simulate parallel tool calls.
 
 ### Load the json file
+
 To create a MockAI server with our json file, we just need to pass it to the mockai command.
+
 ```bash
 $ mockai mock_responses.json
 
