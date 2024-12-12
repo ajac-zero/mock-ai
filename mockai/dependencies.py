@@ -7,7 +7,7 @@ from fastapi import Depends
 from mockai.models import PreDeterminedResponses
 
 
-async def read_response_file():
+async def read_response_file() -> PreDeterminedResponses | None:
     if file := os.getenv("MOCKAI_RESPONSES"):
         async with aiofiles.open(file, "r") as f:
             contents = await f.read()
