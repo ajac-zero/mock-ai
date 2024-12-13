@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "ai-mock"
-version = "0.2.6"
+version = "0.2.7"
 description = "Mock clients for your favorite LLM APIs"
 authors = ["Anibal Angulo <ajcardoza2000@gmail.com>"]
 packages = [{ "include" = "mockai" }]
@@ -24,7 +24,7 @@ cohere = ["cohere"]
 all = ["openai", "anthropic", "mistralai", "cohere"]
 
 [tool.poetry.scripts]
-server = "mockai.cli:cli"
+ai-mock = "mockai.cli:cli"
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.4.9"

@@ -27,7 +27,7 @@ This is the server that the mock clients will communicate with, we'll see later 
 
 ```bash
 # After installing MockAI 
-$ server
+$ ai-mock server
 
 # Or without installing with uvx
 $ uvx ai-mock server
@@ -202,10 +202,10 @@ When creating your .json file, please follow these rules:
 To create a MockAI server with our json file, we just need to pass it to the mockai command.
 
 ```bash
-$ mockai mock_responses.json
+$ ai-mock server mock_responses.json
 
 # The full file path can also be passed
-$ mockai ~/home/foo/bar/mock_responses.json
+$ ai-mock server ~/home/foo/bar/mock_responses.json
 ```
 
 With this, our mock clients will have access to our pre-determined responses!

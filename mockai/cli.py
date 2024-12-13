@@ -10,12 +10,17 @@ from mockai.models import PreDeterminedResponses
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
 
-@click.command()
+@click.group()
+def cli():
+    pass
+
+
+@cli.command()
 @click.argument("responses", type=click.File("rb"), required=False)
 @click.option("--embedding-size", "-E", default=1536)
 @click.option("--host", "-h", default="127.0.0.1")
 @click.option("--port", "-p", default=8100)
-def cli(responses, embedding_size, host, port):
+def server(responses, embedding_size, host, port):
     if responses:
         print(f"Reading pre-determined responses from {responses.name}.")
 
