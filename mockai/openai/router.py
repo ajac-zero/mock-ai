@@ -5,11 +5,13 @@ from time import time
 from typing import cast
 from uuid import uuid4
 
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Header, Request
 from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException
 
 from mockai.dependencies import ResponseFile
+from mockai.models import PreDeterminedResponse
 from mockai.openai.models import EmbeddingPayload, Payload
 
 openai_router = APIRouter(prefix="/openai")
@@ -93,10 +95,42 @@ def streaming_response(content: str | None, model: str, tool_calls: list[dict] |
         }
         yield f"data: {json.dumps(chunk)}\n\n"
 
+    yield "data: [DONE]\n\n"
+
+
+def response_struct_to_openai_format(response: PreDeterminedResponse):
+    if response.type == "text":
+        content = response.output
+        tool_calls = None
+    elif response.type == "function":
+        content = None
+
+        if isinstance(response.output, str):
+            raise ValueError("Impossible state")
+
+        tool_calls = response.output._to_dict_list()
+
+        for tool_call in tool_calls:
+            tool_call["id"] = str(uuid4())
+            tool_call["type"] = "function"
+            function = {
+                "name": tool_call.pop("name"),
+                "arguments": tool_call.pop("arguments"),
+            }
+            tool_call["function"] = function
+    else:
+        raise ValueError("unreachable")
+
+    return content, tool_calls
+
 
 @openai_router.post("/chat/completions")  # OpenAI Endpoint
 @openai_router.post("/deployments/{path}/chat/completions")  # AzureOpenAI Endpoint
-def openai_chat_completion(payload: Payload, responses: ResponseFile):
+def openai_chat_completion(
+    payload: Payload,
+    responses: ResponseFile,
+    mock_response: str | None = Header(default=None),
+):
     model = payload.model
     stream = payload.stream
     content = payload.messages[-1].content
@@ -118,25 +152,26 @@ def openai_chat_completion(payload: Payload, responses: ResponseFile):
     if responses is not None:
         for response in responses:
             if content == response.input:
-                if response.type == "text":
-                    content = response.output
-                elif response.type == "function":
-                    content = None
-
-                    if isinstance(response.output, str):
-                        raise ValueError("Impossible state")
-
-                    tool_calls = response.output._to_dict_list()
-
-                    for tool_call in tool_calls:
-                        tool_call["id"] = str(uuid4())
-                        tool_call["type"] = "function"
-                        function = {
-                            "name": tool_call.pop("name"),
-                            "arguments": tool_call.pop("arguments"),
-                        }
-                        tool_call["function"] = function
+                content, tool_calls = response_struct_to_openai_format(response)
                 break
+
+    if mock_response is not None:
+        try:
+            is_function = mock_response[:2] == "f:"
+
+            r_type = "function" if is_function else "text"
+
+            if is_function:
+                output = json.loads(mock_response[2:])
+            else:
+                output = mock_response
+
+            header_mock_response = PreDeterminedResponse(
+                type=r_type, input="None", output=output
+            )
+            content, tool_calls = response_struct_to_openai_format(header_mock_response)
+        except (ValidationError, json.JSONDecodeError) as e:
+            content = str(e)
 
     content = cast(str, content)
 

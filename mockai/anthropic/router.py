@@ -1,12 +1,14 @@
 import json
 from uuid import uuid4
 
-from fastapi import APIRouter
+from fastapi import APIRouter, Header
 from fastapi.responses import JSONResponse, StreamingResponse
+from pydantic import ValidationError
 from starlette.exceptions import HTTPException
 
 from mockai.anthropic.models import Payload, anthropic_tool
 from mockai.dependencies import ResponseFile
+from mockai.models import FunctionOutput
 
 anthropic_router = APIRouter(prefix="/anthropic")
 
@@ -104,7 +106,11 @@ def streaming_response(response_array, model: str):
 
 
 @anthropic_router.post("/v1/messages")
-def anthropic_messages(payload: Payload, responses: ResponseFile):
+def anthropic_messages(
+    payload: Payload,
+    responses: ResponseFile,
+    mock_response: str | None = Header(default=None),
+):
     model = payload.model
     stream = payload.stream
     # Get content from last message
@@ -138,6 +144,18 @@ def anthropic_messages(payload: Payload, responses: ResponseFile):
 
                     response_array = [anthropic_tool(m) for m in output._to_list()]
                 break
+
+    # Check if a mock response was passed in header
+    if mock_response is not None:
+        try:
+            if mock_response[:2] == "f:":
+                function_output = FunctionOutput.model_validate_json(mock_response[2:])
+                response_array = [anthropic_tool(function_output)]
+            else:
+                response_array = [{"type": "text", "text": mock_response}]
+
+        except (ValidationError, json.JSONDecodeError) as e:
+            response_array = [{"type": "text", "text": str(e)}]
 
     if stream is None or stream is False:
         response = json_response(response_array, model)
