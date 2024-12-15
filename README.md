@@ -41,7 +41,7 @@ in the OpenAI client.
 client.chat.completions.create(
     model="gipiti",
     messages=[
-      {"role": "user", "content": "How created MockAI?"}
+      {"role": "user", "content": "Who created MockAI?"}
     ],
     extra_headers={"mock-response": "MockAI was made by ajac-zero"}
   ).choices[0].message
@@ -57,7 +57,7 @@ and appended with 'f:', like so:
 client.chat.completions.create(
     model="gipiti",
     messages=[
-      {"role": "user", "content": "How created MockAI?"}
+      {"role": "user", "content": "Who created MockAI?"}
     ],
     extra_headers={
       "mock-response":'f:{"name":"my_function","arguments":{"first_arg":"one"}}'
