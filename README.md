@@ -21,10 +21,10 @@ and the Anthropic client to `https://mockai.ajac-zero.com/anthropic`:
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="https://mockai.ajac-zero.com/openai", api_key="anything")
+client = OpenAI(base_url="https://mockai.ajac-zero.com/openai", api_key="anything") # api_key arg can be any string
 
 completion = client.chat.completions.create(
-    model="gipiti",
+    model="gipiti", # model arg can be any string
     messages=[
       {"role": "user", "content":"hello"}
     ]
