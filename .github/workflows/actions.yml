@@ -32,7 +32,7 @@ jobs:
       # Step 4: Install dependencies
       - name: Install dependencies
         run: |
-          poetry install --no-root
+          poetry install --all-extras
 
       # Step 5: Run tests
       - name: Run tests
