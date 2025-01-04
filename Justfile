@@ -5,9 +5,9 @@ default:
 dev-server:
   @poetry run uvicorn main:app --app-dir ./mockai --port 8100 --reload
 
-# Start test server with pre-determined responses
-test-server:
-  @poetry run ai-mock server ./tests/responses.json
+# Cleans up the default port for the server
+clean-port:
+  @kill -9 $(lsof -t -i:8100)
 
 test-all:
   @poetry run pytest -q
