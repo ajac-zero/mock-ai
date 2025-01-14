@@ -10,16 +10,14 @@ from pydantic import BaseModel
 
 from mockai.anthropic.router import anthropic_router
 from mockai.dependencies import ResponseFile
-from mockai.models import PreDeterminedResponse
+from mockai.models.json_file.models import PreDeterminedResponse
 from mockai.openai.router import openai_router
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     mockai_embedding_size = os.getenv("MOCKAI_EMBEDDING_SIZE", "1536")
-
     app.state.embedding_size = int(mockai_embedding_size)
-
     yield
 
 

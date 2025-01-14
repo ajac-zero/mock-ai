@@ -11,11 +11,13 @@ from pydantic import ValidationError
 from starlette.exceptions import HTTPException
 
 from mockai.dependencies import ResponseFile
-from mockai.models import PreDeterminedResponse
-from mockai.openai.models import EmbeddingPayload, Payload
+from mockai.models.api.openai import EmbeddingPayload, Payload
+from mockai.models.json_file.models import PreDeterminedResponse
+import logging
 
 openai_router = APIRouter(prefix="/openai")
 
+_log=logging.getLogger(__name__)
 
 def json_response(content: str | None, model: str, tool_calls: list[dict] | None):
     response = {
@@ -133,7 +135,14 @@ def openai_chat_completion(
 ):
     model = payload.model
     stream = payload.stream
-    content = payload.messages[-1].content
+    content = None
+    for message in payload.messages[::-1]:
+        if message.role == "user":
+            content = message.content
+            break
+    if content is None:
+        content = payload.messages[-1].content
+
     if content is None:
         raise ValueError("Content from last message cannot be None")
     tool_calls = None
@@ -148,14 +157,20 @@ def openai_chat_completion(
                 400,
                 "Content array must include at least one object with 'type' = 'text'",
             )
-
+    found_predetermined_response=False
     if responses is not None:
-        for response in responses:
-            if content == response.input:
-                content, tool_calls = response_struct_to_openai_format(response)
-                break
+        response = responses.find_matching_or_none(payload)
+        if response is not None:
+            content, tool_calls = response_struct_to_openai_format(response)
+            found_predetermined_response=True
+
+    _log.info("predetermined response %s found","not" if not found_predetermined_response else "")
 
     if mock_response is not None:
+        if found_predetermined_response:
+            _log.info("Overriding predetermined response with mock response from header")
+        else:
+            _log.info("Using mock response from header")
         try:
             is_function = mock_response[:2] == "f:"
 

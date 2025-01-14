@@ -4,7 +4,7 @@ from typing import Annotated
 import aiofiles
 from fastapi import Depends
 
-from mockai.models import PreDeterminedResponses
+from mockai.models.json_file.models import PreDeterminedResponses
 
 
 async def read_response_file() -> PreDeterminedResponses | None:

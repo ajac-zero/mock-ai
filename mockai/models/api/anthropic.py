@@ -1,9 +1,11 @@
-from typing import Literal, TypedDict
+from __future__ import annotations
+
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, model_validator
+from typing_extensions import Literal, TypedDict
 
-from mockai.models import FunctionOutput
+from mockai.models.common import FunctionOutput
 
 roles = Literal["user", "assistant"]
 
@@ -18,7 +20,7 @@ class Content(BaseModel):
     content: str | None = None
 
     @model_validator(mode="after")
-    def check_fields(self) -> "Content":
+    def check_fields(self) -> Content:
         match self.type:
             case "text":
                 if self.text is None:
@@ -44,6 +46,7 @@ class Payload(BaseModel):
     max_tokens: int
     messages: list[Message]
     stream: bool | None = None
+    system: str | None = None
 
     model_config = ConfigDict(extra="allow")
 

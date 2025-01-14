@@ -245,7 +245,8 @@ which is what will be returned if the input key matches the user input.
 
 ```json
 // mock_responses.json
-[
+{
+"responses":[
   {
     "type": "text",
     "input": "How are ya?",
@@ -262,6 +263,7 @@ which is what will be returned if the input key matches the user input.
     }
   }
 ]
+}
 ```
 
 When creating your .json file, please follow these rules:
