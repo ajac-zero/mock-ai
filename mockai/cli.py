@@ -5,7 +5,7 @@ import subprocess
 import click
 import pydantic
 
-from mockai.models import PreDeterminedResponses
+from mockai.models.json_file.models import PreDeterminedResponses
 
 dir_path = os.path.dirname(os.path.realpath(__file__))
 
@@ -51,5 +51,7 @@ def server(responses, embedding_size, host, port):
             host,
             "--port",
             str(port),
+            "--log-config",
+            f"{dir_path}/logging_conf.yaml",
         ]
     )

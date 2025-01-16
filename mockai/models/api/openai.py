@@ -1,6 +1,7 @@
-from typing import Literal
+from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict, model_validator
+from typing_extensions import Literal
 
 
 class Content(BaseModel):
@@ -9,7 +10,7 @@ class Content(BaseModel):
     image_url: dict | None = None
 
     @model_validator(mode="after")
-    def check_fields(self) -> "Content":
+    def check_fields(self) -> Content:
         if self.type == "text":
             if self.text is None:
                 raise ValueError("text field required")
@@ -37,7 +38,7 @@ class Payload(BaseModel):
     model_config = ConfigDict(extra="allow")
 
     @model_validator(mode="after")
-    def check_messages(self) -> "Payload":
+    def check_messages(self) -> Payload:
         if len(self.messages) == 0:
             raise ValueError("messages array can't be empty.")
         return self

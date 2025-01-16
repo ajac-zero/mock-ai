@@ -1,4 +1,5 @@
-[
+{
+  "responses":[
   {
     "type": "text",
     "input": "How are ya?",
@@ -22,5 +23,14 @@
     "type": "text",
     "input": "{'order_id': '1337', 'delivery_date': '25/10/2024'}",
     "output": "Your order will arrive the 25th of October."
-  }
+  },
+    {
+    "type": "text",
+    "input": {
+      "offset": -2,
+      "content": "Where's my json you know?"
+    },
+      "output": "{'fake': 'json'}"
+    }
 ]
+}
