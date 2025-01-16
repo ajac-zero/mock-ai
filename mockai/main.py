@@ -1,15 +1,20 @@
+import asyncio
 import os
+import sys
 from contextlib import asynccontextmanager
 
 import aiofiles
+import anyio
 from fastapi import FastAPI
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import ORJSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
+from starlette_compress import CompressMiddleware
 
 from mockai.anthropic.router import anthropic_router
-from mockai.dependencies import ResponseFile
+from mockai.dependencies import ResponseFile, star_watching_responses
 from mockai.models.json_file.models import PreDeterminedResponse
 from mockai.openai.router import openai_router
 
@@ -18,10 +23,13 @@ from mockai.openai.router import openai_router
 async def lifespan(app: FastAPI):
     mockai_embedding_size = os.getenv("MOCKAI_EMBEDDING_SIZE", "1536")
     app.state.embedding_size = int(mockai_embedding_size)
-    yield
+
+    async with anyio.create_task_group() as tg:
+        tg.start_soon(star_watching_responses)
+        yield
 
 
-app = FastAPI(lifespan=lifespan)
+app = FastAPI(lifespan=lifespan, default_response_class=ORJSONResponse)
 
 app.add_middleware(
     CORSMiddleware,
@@ -30,6 +38,8 @@ app.add_middleware(
     allow_headers=["*"],
     allow_credentials=True,
 )
+
+app.add_middleware(CompressMiddleware)
 
 app.include_router(openai_router)
 app.include_router(anthropic_router)

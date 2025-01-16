@@ -3,17 +3,22 @@ import json
 import pytest
 from anthropic import AsyncStream, Stream
 from anthropic.types import Message, TextBlock, ToolUseBlock
+from httpx import AsyncClient as HTTPXACLIENT
+from httpx import Client as HTTPXClient
 
 from mockai.anthropic import Anthropic, AsyncAnthropic, AsyncClient, Client
 
+CustomSyncClient = Anthropic(http_client=HTTPXClient(http2=True))
+CustomAsyncClient = AsyncAnthropic(http_client=HTTPXACLIENT(http2=True))
+
 
 # Fixtures
-@pytest.fixture(params=[Anthropic(), Client()])
+@pytest.fixture(params=[Anthropic(), Client(), CustomSyncClient])
 def client_x(request):
     return request.param
 
 
-@pytest.fixture(params=[AsyncAnthropic(), AsyncClient()])
+@pytest.fixture(params=[AsyncAnthropic(), AsyncClient(), CustomAsyncClient])
 def async_client_x(request):
     return request.param
 
@@ -163,19 +168,26 @@ async def test_async_tool_call_stream(async_client_x):
 async def test_user_message_is_not_last_no_match(async_client_x):
     completion = await async_client_x.messages.create(
         model="mock",
-        messages=[{"role": "user", "content": "Where's my json you do not know?"}, {"role": "assistant", "content": "your json is here:"}],
+        messages=[
+            {"role": "user", "content": "Where's my json you do not know?"},
+            {"role": "assistant", "content": "your json is here:"},
+        ],
         max_tokens=1024,
     )
     content = completion.content[0]
     assert isinstance(content, TextBlock)
     assert content.text == "Where's my json you do not know?"
 
+
 @pytest.mark.asyncio
 async def test_user_message_is_not_last_and_is_matched():
     async_client = AsyncAnthropic()
     completion = await async_client.messages.create(
         model="mock",
-        messages=[{"role": "user", "content": "Where's my json you know?"}, {"role": "assistant", "content": "your json is here:"}],
+        messages=[
+            {"role": "user", "content": "Where's my json you know?"},
+            {"role": "assistant", "content": "your json is here:"},
+        ],
         max_tokens=1024,
     )
     content = completion.content[0]

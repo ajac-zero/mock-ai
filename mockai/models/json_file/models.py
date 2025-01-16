@@ -103,14 +103,15 @@ class PreDeterminedResponses(BaseModel):
     @model_validator(mode="after")
     def _verify_responses(self) -> PreDeterminedResponses:
         glob_errors = []
-        temp_errors = []
-        for response in self.responses:
+        temp_errors = [
+            response.input.system_prompt_name
+            for response in self.responses
             if (
                 isinstance(response.input, InputMatcher)
                 and response.input.system_prompt_name is not None
                 and response.input.system_prompt_name not in self.system_prompts
-            ):
-                temp_errors.append(response.input.system_prompt_name)
+            )
+        ]
         if len(temp_errors) > 0:
             glob_errors.append(
                 f"Following system prompt missing for the following system_prompt_names: {temp_errors}"
@@ -123,18 +124,6 @@ class PreDeterminedResponses(BaseModel):
             )
         return self
 
-    def __iter__(self):  # type: ignore
-        return iter(self.responses)
-
-    def __setitem__(self, idx, item):
-        self.responses[idx] = item
-
-    def pop(self, idx):
-        self.responses.pop(idx)
-
-    def append(self, response: PreDeterminedResponse):
-        self.responses.append(response)
-
     def find_matching_or_none(
         self, payload: AnthropicPayload | OpenAIPayload
     ) -> PreDeterminedResponse | None:
@@ -142,3 +131,5 @@ class PreDeterminedResponses(BaseModel):
             if response.response_matches(payload, self.system_prompts):
                 return response
         return None
+
+    # todo add chaching that will be flushed when file changes
