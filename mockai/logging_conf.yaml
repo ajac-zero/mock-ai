@@ -27,6 +27,12 @@ loggers:
     handlers:
       - access
     propagate: no
+
+  watchfiles.main:
+    level: WARNING
+    handlers:
+      - default
+    propagate: no
 root:
   level: INFO
   handlers:

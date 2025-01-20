@@ -1,4 +1,5 @@
 import json
+import logging
 from uuid import uuid4
 
 from fastapi import APIRouter, Header
@@ -9,10 +10,10 @@ from starlette.exceptions import HTTPException
 from mockai.dependencies import ResponseFile
 from mockai.models.api.anthropic import Payload, anthropic_tool
 from mockai.models.common import FunctionOutput
-import logging
 
 anthropic_router = APIRouter(prefix="/anthropic")
 _logger = logging.getLogger(__name__)
+
 
 def json_response(response_array, model: str):
     response = {
@@ -107,7 +108,7 @@ def streaming_response(response_array, model: str):
 
 
 @anthropic_router.post("/v1/messages")
-def anthropic_messages(
+async def anthropic_messages(
     payload: Payload,
     file: ResponseFile,
     mock_response: str | None = Header(default=None),
@@ -140,26 +141,30 @@ def anthropic_messages(
     response_array = [{"type": "text", "text": content}]
 
     # Check predetermined responses for matching inputs
-    found_predetermined=False
+    found_predetermined = False
     if file is not None:
         response = file.find_matching_or_none(payload)
         if response is not None:
             if response.type == "text":
                 response_array = [{"type": "text", "text": response.output}]
-                found_predetermined=True
+                found_predetermined = True
 
             elif response.type == "function":
                 if isinstance(output := response.output, str):
                     raise ValueError("Impossible state")
 
                 response_array = [anthropic_tool(m) for m in output._to_list()]
-                found_predetermined=True
-    _logger.info("Predetermined response %s found","not" if not found_predetermined else "")
+                found_predetermined = True
+    _logger.info(
+        "Predetermined response %s found", "not" if not found_predetermined else ""
+    )
 
     # Check if a mock response was passed in header
     if mock_response is not None:
         if found_predetermined:
-            _logger.info("Overriding predetermined response with mock response from header")
+            _logger.info(
+                "Overriding predetermined response with mock response from header"
+            )
         else:
             _logger.info("Using mock response from header")
         try:
