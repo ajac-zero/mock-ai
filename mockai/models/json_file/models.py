@@ -1,9 +1,8 @@
 from __future__ import annotations
 
-from typing import Annotated
+from typing import Annotated, Literal, TypeAlias
 
 from pydantic import BaseModel, Field, model_validator
-from typing_extensions import Literal, TypeAlias
 
 from mockai.models.api.anthropic import Payload as AnthropicPayload
 from mockai.models.api.openai import Message

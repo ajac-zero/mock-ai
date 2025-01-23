@@ -75,7 +75,7 @@ parameter and the 'arguments' dict parameter.
 
 ```bash
 # With pip
-pip install ai-mock 
+pip install ai-mock
 
 # With poetry
 poetry add ai-mock
@@ -92,7 +92,7 @@ This is the server that the mock clients will communicate with, we'll see later
 how we can configure our own pre-determined responses :).
 
 ```bash
-# After installing MockAI 
+# After installing MockAI
 $ ai-mock server
 
 # Or without installing with uvx
@@ -121,7 +121,7 @@ response = client.chat.completions.create(
                 "content": "Hi Mock!"
             }
         ],
-        # All other kwargs are accepted, but ignored (except for stream ;)) 
+        # All other kwargs are accepted, but ignored (except for stream ;))
         temperate = 0.7,
         top_k = 0.95
     )
@@ -203,7 +203,7 @@ for chunk in response:
             print(chunk.choices[0].delta.content)
 # >> H
 # >> i
-# >>  
+# >>
 # >> m
 # >> o
 # >> c
@@ -315,3 +315,15 @@ print(response.choices[0].message.tool_calls[0].function.name)
 print(response.choices[0].message.tool_calls[0].function.arguments)
 # >> "{'order_id': '1337'}"
 ```
+
+## Development
+### Python
+1. Install system dependencies
+   * [uv](https://docs.astral.sh/uv/)
+   * [docker](https://www.docker.com/)
+   * [just](https://github.com/casey/just)
+   * then run `just get_started`
+and you should be good to go!
+
+### nodejs
+TBD

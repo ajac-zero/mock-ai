@@ -61,9 +61,8 @@ def streaming_response(response_array, model: str):
     for idx, event in enumerate(response_array):
         try:
             is_function = True if event["type"] == "tool_use" else False
-        except Exception as e:
-            print(e)
-            print(event)
+        except Exception:
+            _logger.exception("unexpected error: durring streaming response")
 
         block_start = {
             "type": "content_block_start",

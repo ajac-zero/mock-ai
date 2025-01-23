@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+from typing import Literal
 from uuid import uuid4
 
 from pydantic import BaseModel, ConfigDict, model_validator
-from typing_extensions import Literal, TypedDict
+from typing_extensions import TypedDict
 
 from mockai.models.common import FunctionOutput
 
