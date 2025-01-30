@@ -1,20 +1,23 @@
-FROM ghcr.io/astral-sh/uv:python3.10-alpine
+FROM ghcr.io/astral-sh/uv:python3.10-bookworm-slim AS builder
 
+ENV UV_COMPILE_BYTECODE=1 UV_LINK_MODE=copy
 
-# Install gcc
-RUN apk add --no-cache gcc musl-dev python3-dev linux-headers
-
-# Set up working directory
 WORKDIR /app
 
-# Copy everything to the working directory
-COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+  --mount=type=bind,source=README.md,target=README.md \
+  --mount=type=bind,source=uv.lock,target=uv.lock \
+  --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+  uv sync --frozen --no-dev
 
-# Install the dependencies
-RUN uv sync
+COPY mockai/ ./mockai/
 
+FROM python:3.10-slim-bookworm AS runtime
 
-# Expose the port
-EXPOSE 8100
+COPY --from=builder /app /app
 
-ENTRYPOINT ["uv","run","ai-mock", "server", "-h", "0.0.0.0", "-p", "8100"]
+ENV PATH="/app/.venv/bin:$PATH"
+
+ENTRYPOINT [ "ai-mock", "server", "-h", "0.0.0.0" ]
+
+CMD [ "-p", "8100" ]

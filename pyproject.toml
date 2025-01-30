@@ -1,45 +1,32 @@
-
 [project]
-authors = [
-    {name = "Anibal Angulo", email = "ajcardoza2000@gmail.com"},
-]
-license = {text = "MIT"}
+authors = [{ name = "Anibal Angulo", email = "ajcardoza2000@gmail.com" }]
+license = { text = "MIT" }
 requires-python = "<4.0,>=3.10"
 dependencies = [
-    "aiofiles<25.0.0,>=24.1.0",
-    "fastapi[standard]<1.0.0,>=0.115.6",
-    "starlette-compress<2.0.0,>=1.4.0",
-    "orjson<4.0.0,>=3.10.14",
+  "aiofiles<25.0.0,>=24.1.0",
+  "fastapi[standard]<1.0.0,>=0.115.6",
+  "starlette-compress<2.0.0,>=1.4.0",
+  "orjson<4.0.0,>=3.10.14",
 ]
 name = "ai-mock"
-version = "0.2.7"
+version = "0.2.8"
 description = "Mock clients for your favorite LLM APIs"
 readme = "README.md"
 
 
-
-
 [project.optional-dependencies]
-openai = [
-    "openai<2.0.0,>=1.59.6",
-]
-anthropic = [
-    "anthropic<1.0.0,>=0.42.0",
-]
-mistralai = [
-    "mistralai<2.0.0,>=1.2.6",
-]
-cohere = [
-    "cohere<6.0.0,>=5.13.6",
-]
+openai = ["openai<2.0.0,>=1.59.6"]
+anthropic = ["anthropic<1.0.0,>=0.42.0"]
+mistralai = ["mistralai<2.0.0,>=1.2.6"]
+cohere = ["cohere<6.0.0,>=5.13.6"]
 dev = [
-    "ruff<1.0.0,>=0.4.9",
-    "pytest<9.0.0,>=8.3.4",
-    "pytest-sugar<2.0.0,>=1.0.0",
-    "pytest-asyncio<1.0.0,>=0.25.2",
-    "ipykernel<7.0.0,>=6.29.5",
-    "httpx[brotli,http2,zstd]>0.20.0",
-    "anyio<5.0.0,>=4.8.0",
+  "ruff<1.0.0,>=0.4.9",
+  "pytest<9.0.0,>=8.3.4",
+  "pytest-sugar<2.0.0,>=1.0.0",
+  "pytest-asyncio<1.0.0,>=0.25.2",
+  "ipykernel<7.0.0,>=6.29.5",
+  "httpx[brotli,http2,zstd]>0.20.0",
+  "anyio<5.0.0,>=4.8.0",
 ]
 
 [project.scripts]
@@ -47,19 +34,18 @@ ai-mock = "mockai.cli:cli"
 
 [dependency-groups]
 dev = [
-    "ruff<1.0.0,>=0.4.9",
-    "pytest<9.0.0,>=8.3.4",
-    "pytest-sugar<2.0.0,>=1.0.0",
-    "pytest-asyncio<1.0.0,>=0.25.2",
-    "ipykernel<7.0.0,>=6.29.5",
-    "httpx[brotli,http2,zstd]>0.20.0",
-    "anyio<5.0.0,>=4.8.0",
+  "ruff<1.0.0,>=0.4.9",
+  "pytest<9.0.0,>=8.3.4",
+  "pytest-sugar<2.0.0,>=1.0.0",
+  "pytest-asyncio<1.0.0,>=0.25.2",
+  "ipykernel<7.0.0,>=6.29.5",
+  "httpx[brotli,http2,zstd]>0.20.0",
+  "anyio<5.0.0,>=4.8.0",
+  "testcontainers>=4.9.1",
 ]
 
 [tool.pdm.build]
-includes = [
-    "mockai",
-]
+includes = ["mockai"]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
@@ -71,33 +57,31 @@ asyncio_default_fixture_loop_scope = "function"
 
 [tool.ruff.lint]
 select = [
-    'F',      # Pyflakes
-    'E',      # pycodestyle (Error)
-    'I',      # isort
-    'UP',     # pyupgrade
-    'YTT',    # flake8-2020
-    'B',      # flake8-bugbear
-    'T10',    # flake8-debugger
-    'T20',    # flake8-print
-    'C4',     # flake8-comprehensions
-    'PYI006', # flake8-pyi
-    'PYI062', # flake8-pyi
-    'PYI063', # flake8-pyi
-    'PYI066', # flake8-pyi
-    'PERF',   # Perflint
+  'F',      # Pyflakes
+  'E',      # pycodestyle (Error)
+  'I',      # isort
+  'UP',     # pyupgrade
+  'YTT',    # flake8-2020
+  'B',      # flake8-bugbear
+  'T10',    # flake8-debugger
+  'T20',    # flake8-print
+  'C4',     # flake8-comprehensions
+  'PYI006', # flake8-pyi
+  'PYI062', # flake8-pyi
+  'PYI063', # flake8-pyi
+  'PYI066', # flake8-pyi
+  'PERF',   # Perflint
 ]
 ignore = ['D105', 'D107', 'D205', 'D415', 'E501', 'B011', 'B028', 'B904']
-flake8-quotes = {inline-quotes = 'single', multiline-quotes = 'double'}
+flake8-quotes = { inline-quotes = 'single', multiline-quotes = 'double' }
 mccabe = { max-complexity = 14 }
 pydocstyle = { convention = 'google' }
 
 [tool.ruff.lint.per-file-ignores]
 'tests/*' = [
-    'S101', # asserts
+  'S101', # asserts
 ]
-"examples/openai_tutorial.ipynb" =[
-    "T201"
-]
+"examples/openai_tutorial.ipynb" = ["T201"]
 
 [tool.ruff.format]
 indent-style = "space"
