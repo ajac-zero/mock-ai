@@ -1,12 +1,12 @@
-name: Run Tests
+name: Tests
 
 on:
   push:
     branches:
-      - main # Run tests on pushes to the main branch
+      - main
   pull_request:
     branches:
-      - main # Run tests for pull requests targeting the main branch
+      - main
 
 jobs:
   test:
@@ -22,7 +22,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4.2.2
+        uses: actions/checkout@v4
 
       - name: Install uv and set the python version
         uses: astral-sh/setup-uv@v5
