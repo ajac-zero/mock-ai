@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel, ConfigDict, model_validator
-from typing_extensions import Literal
 
 
 class Content(BaseModel):
@@ -18,7 +19,7 @@ class Content(BaseModel):
             if self.image_url is None:
                 raise ValueError("image_url field required")
             url = self.image_url.get("url", None)
-            if type(url) != str:
+            if isinstance(url, str):
                 raise ValueError('image_url dict must contain "url" key of type string')
         return self
 

@@ -1,9 +1,8 @@
-FROM python:3.13-slim
+FROM ghcr.io/astral-sh/uv:python3.10-alpine
 
-RUN apt-get update && apt-get install -y gcc
 
-# Install dependencies
-RUN pip install poetry
+# Install gcc
+RUN apk add --no-cache gcc musl-dev python3-dev linux-headers
 
 # Set up working directory
 WORKDIR /app
@@ -12,7 +11,7 @@ WORKDIR /app
 COPY . /app
 
 # Install the dependencies
-RUN poetry install --extras "all"
+RUN uv sync --all-extras
 
 
 # Expose the port

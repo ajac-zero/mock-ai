@@ -148,7 +148,7 @@ async def openai_chat_completion(
         raise ValueError("Content from last message cannot be None")
     tool_calls = None
 
-    if type(content) == list:
+    if isinstance(content, list):
         for obj in content:
             if obj.type == "text":
                 content = obj.text
@@ -208,7 +208,7 @@ async def openai_chat_completion(
 @openai_router.post("/deployments/{path}/embeddings")  # AzureOpenAI Endpoint
 async def openai_create_embeddings(request: Request, payload: EmbeddingPayload):
     embedding_range = range(request.app.state.embedding_size)
-    input_range = range(len((payload.input_list)))
+    input_range = range(len(payload.input_list))
     return {
         "object": "list",
         "data": [

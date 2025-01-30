@@ -1,7 +1,5 @@
-import asyncio
 import logging
 import os
-import sys
 from typing import Annotated
 
 import aiofiles
@@ -19,7 +17,7 @@ async def save_reload(path: str, change: watchfiles.Change):
     global responses
 
     try:
-        async with aiofiles.open(path, "r") as f:
+        async with aiofiles.open(path) as f:
             responses = PreDeterminedResponses.model_validate_json(await f.read())
         logger.info(
             "Predetermined responses reloaded after %s",
@@ -38,7 +36,7 @@ async def save_reload(path: str, change: watchfiles.Change):
 async def star_watching_responses():
     global responses
     if file := os.getenv("MOCKAI_RESPONSES"):
-        async with aiofiles.open(file, "r") as f:
+        async with aiofiles.open(file) as f:
             contents = await f.read()
         responses = PreDeterminedResponses.model_validate_json(contents)
 
@@ -57,7 +55,7 @@ async def star_watching_responses():
                     )
                     responses = None
         except Exception:
-            logger.exception(f"Unexpected Error watching responses file")
+            logger.exception("Unexpected Error watching responses file")
             raise
 
 

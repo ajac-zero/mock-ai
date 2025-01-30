@@ -1,7 +1,6 @@
-from typing import Any
+from typing import Any, Literal, TypeAlias
 
 from pydantic import BaseModel, RootModel
-from typing_extensions import Literal, TypeAlias
 
 ResponseType: TypeAlias = Literal["text", "function"]
 
