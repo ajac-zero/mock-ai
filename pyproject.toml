@@ -50,6 +50,9 @@ includes = ["mockai"]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
 
+[tool.pyright]
+"venvPath" = "."
+"venv" = ".venv"
 
 [tool.pytest.ini_options]
 pythonpath = ["."]
