@@ -10,5 +10,7 @@ def mockai_server():
         path=".", dockerfile_path="tests/test.Dockerfile", tag="ajac-zero/mock-ai:test"
     ) as image:
         with DockerContainer(str(image)).with_bind_ports(8100, 8100) as container:
-            wait_for_logs(container, "Uvicorn running on http://0.0.0.0:8100")
+            wait_for_logs(
+                container, "Uvicorn running on http://0.0.0.0:8100", raise_on_exit=True
+            )
             yield container

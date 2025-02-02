@@ -41,6 +41,11 @@ class InputMatcher(BaseModel):
             if self.role is not None and self.role != message.role:
                 return False
             if self.system_prompt_name is not None:
+                if isinstance(payload.system, list):
+                    prompt = system_prompts[self.system_prompt_name]
+                    return any(
+                        system_prompt.text == prompt for system_prompt in payload.system
+                    )
                 return payload.system == system_prompts[self.system_prompt_name]
             return True
         else:
