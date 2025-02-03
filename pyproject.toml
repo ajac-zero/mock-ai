@@ -27,22 +27,11 @@ dev = [
   "ipykernel<7.0.0,>=6.29.5",
   "httpx[brotli,http2,zstd]>0.20.0",
   "anyio<5.0.0,>=4.8.0",
+  "testcontainers>=4.9.1"
 ]
 
 [project.scripts]
 ai-mock = "mockai.cli:cli"
-
-[dependency-groups]
-dev = [
-  "ruff<1.0.0,>=0.4.9",
-  "pytest<9.0.0,>=8.3.4",
-  "pytest-sugar<2.0.0,>=1.0.0",
-  "pytest-asyncio<1.0.0,>=0.25.2",
-  "ipykernel<7.0.0,>=6.29.5",
-  "httpx[brotli,http2,zstd]>0.20.0",
-  "anyio<5.0.0,>=4.8.0",
-  "testcontainers>=4.9.1",
-]
 
 [tool.pdm.build]
 includes = ["mockai"]

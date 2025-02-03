@@ -5,25 +5,18 @@ default:
 dev-server:
     @uv run uvicorn main:app --app-dir ./mockai --port 8100 --reload
 
-test-server:
-    @docker build -t mockai-test . -f test.Dockerfile
-    @docker run -d -p 8100:8100 --name mockai-test -v $(pwd)/tests:/tests --entrypoint uv \
-      mockai-test run ai-mock server /tests/responses.json --port 8100 -h 0.0.0.0
-
 # Cleans up the default port for the server
-clean-port: stop-test-server
+clean-port:
     @kill -9 $(lsof -t -i:8100)
 
-stop-test-server:
-    @docker rm -f mockai-test
-
-test-all: stop-test-server test-server
+test-all:
     @uv run pytest -q
+    @uv build
 
-test-openai: stop-test-server test-server
+test-openai:
     @uv run pytest -v ./tests/test_openai.py
 
-test-anthropic: stop-test-server test-server
+test-anthropic:
     @uv run pytest -v ./tests/test_anthropic.py
 
 tidy:
@@ -36,7 +29,6 @@ package-build:
 
 publish: package-build
     @uv publish
-
 
 install:
     @uv sync --all-extras

@@ -13,6 +13,16 @@ roles = Literal["user", "assistant"]
 content_types = Literal["text", "image", "tool_result", "tool_use"]
 
 
+class CacheControl(TypedDict, total=False):
+    type: Literal["ephemeral"]
+
+
+class CachedSystemPrompt(BaseModel):
+    type: Literal["text"]
+    text: str
+    cache_control: CacheControl | None
+
+
 class Content(BaseModel):
     type: content_types
     text: str | None = None
@@ -47,7 +57,7 @@ class Payload(BaseModel):
     max_tokens: int
     messages: list[Message]
     stream: bool | None = None
-    system: str | None = None
+    system: str | list[CachedSystemPrompt] | None = None
 
     model_config = ConfigDict(extra="allow")
 

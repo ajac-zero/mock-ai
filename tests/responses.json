@@ -31,6 +31,19 @@
       "content": "Where's my json you know?"
     },
       "output": "{'fake': 'json'}"
+    },
+    {
+    "type": "text",
+    "input": {
+        "offset": -1,
+        "role": "user",
+        "system_prompt_name": "my_prompt",
+        "content": "Where's my orda?"
+    },
+     "output": "ORDER MATCHED BASED ON SYSTEM PROMPT"
     }
-]
+  ],
+"system_prompts": {
+    "my_prompt": "test_system_prompt"
+}
 }

@@ -12,7 +12,7 @@ COPY pyproject.toml uv.lock tests/responses.json ./
 COPY mockai/ ./mockai/
 
 # Install the dependencies
-RUN touch README.md && uv sync --all-extras --dev
+RUN touch README.md && uv sync --all-extras
 
 # Expose the port
 EXPOSE 8100

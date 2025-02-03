@@ -193,3 +193,25 @@ async def test_user_message_is_not_last_and_is_matched():
     content = completion.content[0]
     assert isinstance(content, TextBlock)
     assert content.text == "{'fake': 'json'}"
+
+
+@pytest.mark.asyncio
+async def test_cached_system_prompt_allowed(async_client_x):
+    # https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
+    response = await async_client_x.messages.create(
+        model="mock",
+        system=[
+            {
+                "type": "text",
+                "text": "test_system_prompt",
+                "cache_control": {
+                    "type": "ephemeral"
+                },  # Cache the static system prompt
+            }
+        ],
+        messages=[{"role": "user", "content": "Where's my orda?"}],
+        max_tokens=1024,
+    )
+    content = response.content[0]
+    assert isinstance(content, TextBlock)
+    assert content.text == "ORDER MATCHED BASED ON SYSTEM PROMPT"
