@@ -127,9 +127,7 @@ def response_struct_to_openai_format(response: PreDeterminedResponse):
     return content, tool_calls
 
 
-@openai_router.post("/chat/completions")  # OpenAI Endpoint
-@openai_router.post("/deployments/{path}/chat/completions")  # AzureOpenAI Endpoint
-async def openai_chat_completion(
+async def _openai_chat_completion(
     payload: Payload,
     responses: ResponseFile,
     mock_response: str | None = Header(default=None),
@@ -204,9 +202,17 @@ async def openai_chat_completion(
         return StreamingResponse(response)
 
 
-@openai_router.post("/embeddings")  # OpenAI Endpoint
-@openai_router.post("/deployments/{path}/embeddings")  # AzureOpenAI Endpoint
-async def openai_create_embeddings(request: Request, payload: EmbeddingPayload):
+@openai_router.post("/chat/completions")  # OpenAI Endpoint
+@openai_router.post("/deployments/{path}/chat/completions")  # AzureOpenAI Endpoint
+async def openai_chat_completion(
+    payload: Payload,
+    responses: ResponseFile,
+    mock_response: str | None = Header(default=None),
+):
+    return await _openai_chat_completion(payload, responses, mock_response)
+
+
+async def _openai_create_embeddings(request: Request, payload: EmbeddingPayload):
     embedding_range = range(request.app.state.embedding_size)
     input_range = range(len(payload.input_list))
     return {
@@ -225,3 +231,9 @@ async def openai_create_embeddings(request: Request, payload: EmbeddingPayload):
             "total_tokens": 0,
         },
     }
+
+
+@openai_router.post("/embeddings")  # OpenAI Endpoint
+@openai_router.post("/deployments/{path}/embeddings")  # AzureOpenAI Endpoint
+async def openai_create_embeddings(request: Request, payload: EmbeddingPayload):
+    return await _openai_create_embeddings(request, payload)
