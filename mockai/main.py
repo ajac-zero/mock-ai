@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 
 import aiofiles
 import anyio
-from fastapi import FastAPI
+from fastapi import FastAPI, Header, Request
 from fastapi.exceptions import HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import ORJSONResponse
@@ -13,8 +13,18 @@ from starlette_compress import CompressMiddleware
 
 from mockai.anthropic.router import anthropic_router
 from mockai.dependencies import ResponseFile, star_watching_responses
+from mockai.models.api.openai import (
+    EmbeddingPayload as OpenAIEmbeddingPayload,
+)
+from mockai.models.api.openai import (
+    Payload as OpenAIPayload,
+)
 from mockai.models.json_file.models import PreDeterminedResponse
-from mockai.openai.router import openai_router
+from mockai.openai.router import (
+    _openai_chat_completion,
+    _openai_create_embeddings,
+    openai_router,
+)
 
 
 @asynccontextmanager
@@ -99,3 +109,30 @@ async def delete_response(number: int, responses: ResponseFile):
         return responses
     else:
         raise ValueError("No response file set.")
+
+
+@app.post("/{path:path}")
+async def route_response(
+    path: str,
+    data: dict,
+    request: Request,
+    responses: ResponseFile,
+    mock_response: str | None = Header(default=None),
+    user_agent: str | None = Header(default=None),
+):
+    if not user_agent:
+        return HTTPException(400, "User agent could not be determined")
+
+    if "OpenAI" in user_agent:
+        if "completions" in path:
+            payload = OpenAIPayload(
+                model=data["model"],
+                messages=data["messages"],
+                stream=data.get("stream"),
+            )
+            return await _openai_chat_completion(payload, responses, mock_response)
+        elif "embeddings" in path:
+            payload = OpenAIEmbeddingPayload(model=data["model"], input=data["input"])
+            return await _openai_create_embeddings(request, payload)
+        else:
+            return HTTPException(400, "Invalid path")
