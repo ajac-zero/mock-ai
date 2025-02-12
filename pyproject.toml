@@ -9,7 +9,7 @@ dependencies = [
   "orjson<4.0.0,>=3.10.14",
 ]
 name = "ai-mock"
-version = "0.2.8"
+version = "0.2.9"
 description = "Mock clients for your favorite LLM APIs"
 readme = "README.md"
 
@@ -19,16 +19,6 @@ openai = ["openai<2.0.0,>=1.59.6"]
 anthropic = ["anthropic<1.0.0,>=0.42.0"]
 mistralai = ["mistralai<2.0.0,>=1.2.6"]
 cohere = ["cohere<6.0.0,>=5.13.6"]
-dev = [
-  "ruff<1.0.0,>=0.4.9",
-  "pytest<9.0.0,>=8.3.4",
-  "pytest-sugar<2.0.0,>=1.0.0",
-  "pytest-asyncio<1.0.0,>=0.25.2",
-  "ipykernel<7.0.0,>=6.29.5",
-  "httpx[brotli,http2,zstd]>0.20.0",
-  "anyio<5.0.0,>=4.8.0",
-  "testcontainers>=4.9.1"
-]
 
 [project.scripts]
 ai-mock = "mockai.cli:cli"
@@ -38,6 +28,18 @@ includes = ["mockai"]
 [build-system]
 requires = ["pdm-backend"]
 build-backend = "pdm.backend"
+
+[dependency-groups]
+dev = [
+  "ruff<1.0.0,>=0.4.9",
+  "pytest<9.0.0,>=8.3.4",
+  "pytest-sugar<2.0.0,>=1.0.0",
+  "pytest-asyncio<1.0.0,>=0.25.2",
+  "ipykernel<7.0.0,>=6.29.5",
+  "httpx[brotli,http2,zstd]>0.20.0",
+  "anyio<5.0.0,>=4.8.0",
+  "testcontainers>=4.9.1",
+]
 
 [tool.pyright]
 "venvPath" = "."

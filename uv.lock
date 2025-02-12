@@ -3,7 +3,7 @@ requires-python = ">=3.10, <4.0"
 
 [[package]]
 name = "ai-mock"
-version = "0.2.8"
+version = "0.2.9"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },
@@ -19,6 +19,14 @@ anthropic = [
 cohere = [
     { name = "cohere" },
 ]
+mistralai = [
+    { name = "mistralai" },
+]
+openai = [
+    { name = "openai" },
+]
+
+[package.dev-dependencies]
 dev = [
     { name = "anyio" },
     { name = "httpx", extra = ["brotli", "http2", "zstd"] },
@@ -29,31 +37,29 @@ dev = [
     { name = "ruff" },
     { name = "testcontainers" },
 ]
-mistralai = [
-    { name = "mistralai" },
-]
-openai = [
-    { name = "openai" },
-]
 
 [package.metadata]
 requires-dist = [
     { name = "aiofiles", specifier = ">=24.1.0,<25.0.0" },
     { name = "anthropic", marker = "extra == 'anthropic'", specifier = ">=0.42.0,<1.0.0" },
-    { name = "anyio", marker = "extra == 'dev'", specifier = ">=4.8.0,<5.0.0" },
     { name = "cohere", marker = "extra == 'cohere'", specifier = ">=5.13.6,<6.0.0" },
     { name = "fastapi", extras = ["standard"], specifier = ">=0.115.6,<1.0.0" },
-    { name = "httpx", extras = ["brotli", "http2", "zstd"], marker = "extra == 'dev'", specifier = ">0.20.0" },
-    { name = "ipykernel", marker = "extra == 'dev'", specifier = ">=6.29.5,<7.0.0" },
     { name = "mistralai", marker = "extra == 'mistralai'", specifier = ">=1.2.6,<2.0.0" },
     { name = "openai", marker = "extra == 'openai'", specifier = ">=1.59.6,<2.0.0" },
     { name = "orjson", specifier = ">=3.10.14,<4.0.0" },
-    { name = "pytest", marker = "extra == 'dev'", specifier = ">=8.3.4,<9.0.0" },
-    { name = "pytest-asyncio", marker = "extra == 'dev'", specifier = ">=0.25.2,<1.0.0" },
-    { name = "pytest-sugar", marker = "extra == 'dev'", specifier = ">=1.0.0,<2.0.0" },
-    { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.4.9,<1.0.0" },
     { name = "starlette-compress", specifier = ">=1.4.0,<2.0.0" },
-    { name = "testcontainers", marker = "extra == 'dev'", specifier = ">=4.9.1" },
+]
+
+[package.metadata.requires-dev]
+dev = [
+    { name = "anyio", specifier = ">=4.8.0,<5.0.0" },
+    { name = "httpx", extras = ["brotli", "http2", "zstd"], specifier = ">0.20.0" },
+    { name = "ipykernel", specifier = ">=6.29.5,<7.0.0" },
+    { name = "pytest", specifier = ">=8.3.4,<9.0.0" },
+    { name = "pytest-asyncio", specifier = ">=0.25.2,<1.0.0" },
+    { name = "pytest-sugar", specifier = ">=1.0.0,<2.0.0" },
+    { name = "ruff", specifier = ">=0.4.9,<1.0.0" },
+    { name = "testcontainers", specifier = ">=4.9.1" },
 ]
 
 [[package]]
