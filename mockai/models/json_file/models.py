@@ -40,7 +40,7 @@ class InputMatcher(BaseModel):
             if self.system_prompt_name is not None:
                 if isinstance(system := payload["system"], list):
                     prompt = system_prompts[self.system_prompt_name]
-                    return any(system_prompt.text == prompt for system_prompt in system)
+                    return any(sys_prompt["text"] == prompt for sys_prompt in system)
                 return system == system_prompts[self.system_prompt_name]
             return True
         else:
