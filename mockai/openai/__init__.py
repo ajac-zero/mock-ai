@@ -3,6 +3,14 @@ from functools import partial
 
 from mockai.constants import API_KEY, BASE_ENDPOINT, NOT_AVAILABLE
 
+from .router import openai_router as _router
+from .services import (
+    generate_openai_completion_response as _generate_openai_completion_response,
+)
+from .services import (
+    generate_openai_embeddings_response as _generate_openai_embeddings_response,
+)
+
 __all__ = [
     "OpenAI",
     "AsyncOpenAI",
@@ -10,6 +18,9 @@ __all__ = [
     "AsyncClient",
     "AzureOpenAI",
     "AzureOpenAI",
+    "_router",
+    "_generate_openai_completion_response",
+    "_generate_openai_embeddings_response",
 ]
 
 OPENAI_ENDPOINT = BASE_ENDPOINT + "/openai"
