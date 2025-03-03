@@ -1,10 +1,8 @@
 name: Release
 
 on:
-  workflow_run:
-    workflows: ["Tests"]
-    types:
-      - completed
+  release:
+    types: [released]
 
 jobs:
   release-pypi:
