@@ -70,9 +70,9 @@ pydocstyle = { convention = 'google' }
 ]
 "examples/openai_tutorial.ipynb" = ["T201"]
 
-[tool.hatch.build.targets.wheel]
-packages = ["mockai"]
+[tool.pdm.build]
+includes = ["mockai"]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"

@@ -36,7 +36,7 @@ docker-build VERSION="latest":
     @docker build --no-cache -t ajaczero/mock-ai:{{ VERSION }} .
 
 # Run the docker container interactively
-docker run:
+docker-run:
     @docker run --rm -it -p 8100:8100 --name mockai-public -v $(pwd)/tests:/tests \
       ajaczero/mock-ai:latest
 
