@@ -22,7 +22,6 @@ test-anthropic:
 tidy:
     @uv run ruff check --fix
     @uv run ruff format
-    @just --fmt --unstable
 
 package-build:
     @uv build
