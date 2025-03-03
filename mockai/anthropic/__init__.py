@@ -9,10 +9,10 @@ from .services import generate_anthropic_response as _generate_anthropic_respons
 __all__ = [
     "Anthropic",
     "AsyncAnthropic",
-    "Client",
     "AsyncClient",
-    "_router",
+    "Client",
     "_generate_anthropic_response",
+    "_router",
 ]
 
 ANTHROPIC_ENDPOINT = BASE_ENDPOINT + "/anthropic"

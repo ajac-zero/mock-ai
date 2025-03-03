@@ -31,6 +31,11 @@ app.include_router(anthropic._router)
 app.include_router(gui_router)
 
 
+@app.get("/")
+async def root():
+    return {"message": "Welcome to MockAI", "version": "0.3.0"}
+
+
 @app.post("/{path:path}")
 async def route_response(
     path: str,

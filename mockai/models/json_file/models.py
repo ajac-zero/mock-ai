@@ -31,9 +31,8 @@ class InputMatcher(BaseModel):
                         break
                 if not found:
                     return False
-            else:
-                if self.content != message["content"]:
-                    return False
+            elif self.content != message["content"]:
+                return False
 
             if self.role is not None and self.role != message["role"]:
                 return False
@@ -52,9 +51,8 @@ class InputMatcher(BaseModel):
                         break
                 if not found:
                     return False
-            else:
-                if self.content != message["content"]:
-                    return False
+            elif self.content != message["content"]:
+                return False
             if self.role is not None and self.role != message["role"]:
                 return False
             return True

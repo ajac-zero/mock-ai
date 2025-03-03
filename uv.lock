@@ -3,7 +3,7 @@ requires-python = ">=3.10, <4.0"
 
 [[package]]
 name = "ai-mock"
-version = "0.2.9"
+version = "0.3.0"
 source = { editable = "." }
 dependencies = [
     { name = "aiofiles" },

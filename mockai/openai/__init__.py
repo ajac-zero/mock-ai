@@ -12,15 +12,15 @@ from .services import (
 )
 
 __all__ = [
-    "OpenAI",
-    "AsyncOpenAI",
-    "Client",
     "AsyncClient",
+    "AsyncOpenAI",
     "AzureOpenAI",
     "AzureOpenAI",
-    "_router",
+    "Client",
+    "OpenAI",
     "_generate_openai_completion_response",
     "_generate_openai_embeddings_response",
+    "_router",
 ]
 
 OPENAI_ENDPOINT = BASE_ENDPOINT + "/openai"

@@ -22,7 +22,7 @@ def cli():
 @click.option("--port", "-p", default=8100)
 def server(responses, embedding_size, host, port):
     if responses:
-        print(f"Reading pre-determined responses from {responses.name}.")  # noqa: T201
+        print(f"Reading pre-determined responses from {responses.name}.")
 
         try:
             responses_data = json.load(responses)
@@ -40,7 +40,7 @@ def server(responses, embedding_size, host, port):
 
     os.environ["MOCKAI_EMBEDDING_SIZE"] = str(embedding_size)
 
-    print("Starting MockAI server ...")  # noqa: T201
+    print("Starting MockAI server ...")
     subprocess.run(
         [
             "uvicorn",
@@ -53,5 +53,5 @@ def server(responses, embedding_size, host, port):
             str(port),
             "--log-config",
             f"{dir_path}/logging_conf.yaml",
-        ]
+        ], check=False
     )
