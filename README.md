@@ -12,16 +12,14 @@ It patches these libraries directly under the hood, so it will always be up to d
 ## Free Public API
 
 MockAI provides a free API that allows you to make mock calls without any installations!
-Behind the scenes, the API is just the mockai server running on a virtual machine
-I maintain, so it is the exact same code seen in this repo.
+Behind the scenes, the API is just the mockai server running on [Fly.io](https://fly.io/).
 
-To use it just set the base url of the OpenAI client to `https://mockai.ajac-zero.com/openai`
-and the Anthropic client to `https://mockai.ajac-zero.com/anthropic`:
+To use it just set the base url to `https://mock-ai.fly.dev`.
 
 ```python
 from openai import OpenAI
 
-client = OpenAI(base_url="https://mockai.ajac-zero.com/openai", api_key="anything") # api_key arg can be any string
+client = OpenAI(base_url="https://mock-ai.fly.dev", api_key="anything") # api_key arg can be any string
 
 completion = client.chat.completions.create(
     model="gipiti", # model arg can be any string
@@ -317,7 +315,9 @@ print(response.choices[0].message.tool_calls[0].function.arguments)
 ```
 
 ## Development
+
 ### Python
+
 1. Install system dependencies
    * [uv](https://docs.astral.sh/uv/)
    * [docker](https://www.docker.com/)
@@ -326,4 +326,5 @@ print(response.choices[0].message.tool_calls[0].function.arguments)
 and you should be good to go!
 
 ### nodejs
+
 TBD
