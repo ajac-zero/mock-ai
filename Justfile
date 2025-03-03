@@ -40,6 +40,6 @@ docker run:
     @docker run --rm -it -p 8100:8100 --name mockai-public -v $(pwd)/tests:/tests \
       ajaczero/mock-ai:latest
 
-# Publich the container to Dockerhub
-docker-push VERSION="latest":
+# Publish the container to Dockerhub
+docker-publish VERSION="latest":
     @docker push ajaczero/mock-ai:{{ VERSION }}

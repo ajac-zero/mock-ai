@@ -54,3 +54,10 @@ jobs:
           tags: |
             ajaczero/mock-ai:latest
             ajaczero/mock-ai:${{ steps.get_version.outputs.version }}
+
+  always:
+    name: Always run job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Always run
+        run: echo "This job is used to prevent the workflow to fail when all other jobs are skipped."
