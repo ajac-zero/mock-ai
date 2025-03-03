@@ -3,11 +3,16 @@ from functools import partial
 
 from mockai.constants import API_KEY, BASE_ENDPOINT, NOT_AVAILABLE
 
+from .router import anthropic_router as _router
+from .services import generate_anthropic_response as _generate_anthropic_response
+
 __all__ = [
     "Anthropic",
     "AsyncAnthropic",
     "Client",
     "AsyncClient",
+    "_router",
+    "_generate_anthropic_response",
 ]
 
 ANTHROPIC_ENDPOINT = BASE_ENDPOINT + "/anthropic"

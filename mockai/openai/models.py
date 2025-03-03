@@ -50,10 +50,3 @@ class EmbeddingPayload(BaseModel):
     input: str | list[str]
 
     model_config = ConfigDict(extra="allow")
-
-    @property
-    def input_list(self) -> list[str]:
-        if isinstance(self.input, str):
-            return [self.input]
-        else:
-            return self.input

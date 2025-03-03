@@ -4,9 +4,6 @@ from typing import Annotated, Literal, TypeAlias
 
 from pydantic import BaseModel, Field, model_validator
 
-from mockai.models.api.anthropic import Payload as AnthropicPayload
-from mockai.models.api.openai import Message
-from mockai.models.api.openai import Payload as OpenAIPayload
 from mockai.models.common import FunctionOutput, FunctionOutputs
 
 ResponseType: TypeAlias = Literal["text", "function"]
@@ -19,49 +16,46 @@ class InputMatcher(BaseModel):
     offset: Annotated[int, Field(default=-1)]
 
     def is_matching_payload(
-        self, payload: AnthropicPayload | OpenAIPayload, system_prompts: dict[str, str]
+        self, origin: str, payload: dict, system_prompts: dict[str, str]
     ) -> bool:
-        msg_count = len(payload.messages)
+        msg_count = len(messages := payload["messages"])
         if not -msg_count <= self.offset < msg_count:
             return False
-        message = payload.messages[self.offset]
-        if isinstance(payload, AnthropicPayload):
-            if isinstance(message.content, list):
+        message = messages[self.offset]
+        if origin == "anthropic":
+            if isinstance(message["content"], list):
                 found = False
-                for content in message.content:
-                    if self.content == content.text:
+                for content in message["content"]:
+                    if self.content == content["text"]:
                         found = True
                         break
                 if not found:
                     return False
             else:
-                if self.content != message.content:
+                if self.content != message["content"]:
                     return False
 
-            if self.role is not None and self.role != message.role:
+            if self.role is not None and self.role != message["role"]:
                 return False
             if self.system_prompt_name is not None:
-                if isinstance(payload.system, list):
+                if isinstance(system := payload["system"], list):
                     prompt = system_prompts[self.system_prompt_name]
-                    return any(
-                        system_prompt.text == prompt for system_prompt in payload.system
-                    )
-                return payload.system == system_prompts[self.system_prompt_name]
+                    return any(sys_prompt["text"] == prompt for sys_prompt in system)
+                return system == system_prompts[self.system_prompt_name]
             return True
         else:
-            message: Message = message
-            if isinstance(message.content, list):
+            if isinstance(message["content"], list):
                 found = False
-                for content in message.content:
-                    if self.content == content.text:
+                for content in message["content"]:
+                    if self.content == content["text"]:
                         found = True
                         break
                 if not found:
                     return False
             else:
-                if self.content != message.content:
+                if self.content != message["content"]:
                     return False
-            if self.role is not None and self.role != message.role:
+            if self.role is not None and self.role != message["role"]:
                 return False
             return True
 
@@ -92,12 +86,12 @@ class PreDeterminedResponse(BaseModel):
         return self
 
     def response_matches(
-        self, payload: AnthropicPayload | OpenAIPayload, system_prompts: dict[str, str]
+        self, origin: str, payload: dict, system_prompts: dict[str, str]
     ) -> bool:
         if isinstance(self.input, str):
-            return self.input == payload.messages[-1].content
+            return self.input == payload["messages"][-1]["content"]
         else:
-            return self.input.is_matching_payload(payload, system_prompts)
+            return self.input.is_matching_payload(origin, payload, system_prompts)
 
 
 class PreDeterminedResponses(BaseModel):
@@ -129,10 +123,10 @@ class PreDeterminedResponses(BaseModel):
         return self
 
     def find_matching_or_none(
-        self, payload: AnthropicPayload | OpenAIPayload
+        self, origin: str, payload: dict
     ) -> PreDeterminedResponse | None:
         for response in self.responses:
-            if response.response_matches(payload, self.system_prompts):
+            if response.response_matches(origin, payload, self.system_prompts):
                 return response
         return None
 
