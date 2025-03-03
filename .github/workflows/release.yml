@@ -1,6 +1,8 @@
 name: Release
 
 on:
+  push:
+    branches: [main]
   release:
     types: [released]
 
@@ -21,7 +23,7 @@ jobs:
       - name: Publish distribution to PyPI
         run: uv publish
         env:
-          UV_PUBLISH_TOKEN: ${{ secrets.UV_PUBLISH_TOKEN }}
+          UV_PUBLISH_TOKEN: ${{ secrets.PYPI_TOKEN }}
 
   release-dockerhub:
     runs-on: ubuntu-latest
