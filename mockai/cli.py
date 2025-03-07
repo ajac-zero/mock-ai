@@ -39,4 +39,6 @@ def server(responses, embedding_size, host, port):
     os.environ["MOCKAI_EMBEDDING_SIZE"] = str(embedding_size)
 
     print("Starting MockAI server ...")
-    subprocess.run(["uvicorn", "mockai.main:app", "--host", host, "--port", str(port)])
+    subprocess.run(
+        ["uvicorn", "mockai.server:app", "--host", host, "--port", str(port)]
+    )
