@@ -17,8 +17,22 @@ from mockai.openai import (
     OpenAI,
 )
 
+clients = [OpenAI(), Client(), AzureOpenAI()]
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
+aclients = [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()]
+
+
+# Fixtures
+@pytest.fixture(params=clients, scope="module")
+def client(request):
+    return request.param
+
+
+@pytest.fixture(params=aclients, scope="module")
+def aclient(request):
+    return request.param
+
+
 def test_openai_chat_completion(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}]
@@ -28,7 +42,29 @@ def test_openai_chat_completion(client):
     assert isinstance(completion.choices[0].message.content, str)
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
+def test_openai_complex_chat_completion(client):
+    completion = client.chat.completions.create(
+        model="mock",
+        messages=[
+            {
+                "role": "user",
+                "content": [
+                    {"type": "text", "text": "Hello!"},
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": "https://www.google.com/images/branding/googlelogo/2x/googlelogo_color_272x92dp.png"
+                        },
+                    },
+                ],
+            }
+        ],
+    )
+    assert isinstance(completion, ChatCompletion)
+    assert isinstance(completion.choices[0].message, ChatCompletionMessage)
+    assert isinstance(completion.choices[0].message.content, str)
+
+
 def test_openai_chat_programmed_completion(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "How are ya?"}]
@@ -40,10 +76,8 @@ def test_openai_chat_programmed_completion(client):
     )
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_chat_completion(client):
-    completion = await client.chat.completions.create(
+async def test_async_openai_chat_completion(aclient):
+    completion = await aclient.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}]
     )
     assert isinstance(completion, ChatCompletion)
@@ -51,10 +85,8 @@ async def test_async_openai_chat_completion(client):
     assert isinstance(completion.choices[0].message.content, str)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_chat_programmed_completion(client):
-    completion = await client.chat.completions.create(
+async def test_async_openai_chat_programmed_completion(aclient):
+    completion = await aclient.chat.completions.create(
         model="mock",
         messages=[{"role": "user", "content": "Where's my order?"}],
     )
@@ -69,7 +101,6 @@ async def test_async_openai_chat_programmed_completion(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_chat_completion_stream(client):
     response = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], stream=True
@@ -79,10 +110,8 @@ def test_openai_chat_completion_stream(client):
     assert isinstance(completion.choices[0].delta.content, str)
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_chat_completion_stream(client):
-    response = await client.chat.completions.create(
+async def test_async_openai_chat_completion_stream(aclient):
+    response = await aclient.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], stream=True
     )
     completion = await anext(response)
@@ -90,7 +119,6 @@ async def test_async_openai_chat_completion_stream(client):
     assert isinstance(completion.choices[0].delta.content, str)
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
@@ -103,7 +131,6 @@ def test_openai_function_call(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_function_call_followup(client):
     completion = client.chat.completions.create(
         model="mock",
@@ -136,7 +163,6 @@ def test_openai_function_call_followup(client):
     assert message.content == "Your order will arrive the 25th of October."
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_programmed_function_call(client):
     completion = client.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
@@ -149,10 +175,8 @@ def test_openai_programmed_function_call(client):
     )
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_function_call(client):
-    completion = await client.chat.completions.create(
+async def test_async_openai_function_call(aclient):
+    completion = await aclient.chat.completions.create(
         model="mock", messages=[{"role": "user", "content": "Where's my order?"}]
     )
     assert isinstance(completion, ChatCompletion)
@@ -163,7 +187,6 @@ async def test_async_openai_function_call(client):
     )
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_function_call_stream(client):
     response = client.chat.completions.create(
         model="mock",
@@ -179,10 +202,8 @@ def test_openai_function_call_stream(client):
     )
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_function_call_stream(client):
-    response = await client.chat.completions.create(
+async def test_async_openai_function_call_stream(aclient):
+    response = await aclient.chat.completions.create(
         model="mock",
         messages=[{"role": "user", "content": "Where's my order?"}],
         stream=True,
@@ -199,7 +220,6 @@ async def test_async_openai_function_call_stream(client):
 # Embeddings
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_embedding(client):
     response = client.embeddings.create(model="mock", input="hello")
     assert isinstance(response, CreateEmbeddingResponse)
@@ -207,16 +227,13 @@ def test_openai_embedding(client):
     assert len(response.data[0].embedding) == 1536
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_embedding(client):
-    response = await client.embeddings.create(model="mock", input="hello")
+async def test_async_embedding(aclient):
+    response = await aclient.embeddings.create(model="mock", input="hello")
     assert isinstance(response, CreateEmbeddingResponse)
     assert len(response.data) == 1
     assert len(response.data[0].embedding) == 1536
 
 
-@pytest.mark.parametrize("client", [OpenAI(), Client(), AzureOpenAI()])
 def test_openai_embedding_list(client):
     input_list = ["hiii", "my", "name", "is", "joe"]
 
@@ -229,12 +246,10 @@ def test_openai_embedding_list(client):
         assert len(data.embedding) == 1536
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_embedding_list(client):
+async def test_async_embedding_list(aclient):
     input_list = ["hiii", "my", "name", "is", "joe"]
 
-    response = await client.embeddings.create(model="mock", input=input_list)
+    response = await aclient.embeddings.create(model="mock", input=input_list)
     assert isinstance(response, CreateEmbeddingResponse)
     assert len(response.data) == 5
 
@@ -243,10 +258,8 @@ async def test_async_embedding_list(client):
         assert len(data.embedding) == 1536
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_user_message_is_not_last_not_matched(client):
-    completion = await client.chat.completions.create(
+async def test_async_openai_user_message_is_not_last_not_matched(aclient):
+    completion = await aclient.chat.completions.create(
         model="mock",
         messages=[
             {"role": "user", "content": "Where's my json you do not know?"},
@@ -261,10 +274,8 @@ async def test_async_openai_user_message_is_not_last_not_matched(client):
     assert message.content == "Where's my json you do not know?"
 
 
-@pytest.mark.asyncio
-@pytest.mark.parametrize("client", [AsyncOpenAI(), AsyncClient(), AsyncAzureOpenAI()])
-async def test_async_openai_user_message_is_not_last_matched(client):
-    completion = await client.chat.completions.create(
+async def test_async_openai_user_message_is_not_last_matched(aclient):
+    completion = await aclient.chat.completions.create(
         model="mock",
         messages=[
             {"role": "user", "content": "Where's my json you know?"},

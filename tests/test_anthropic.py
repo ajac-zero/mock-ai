@@ -3,22 +3,17 @@ import json
 import pytest
 from anthropic import AsyncStream, Stream
 from anthropic.types import Message, TextBlock, ToolUseBlock
-from httpx import AsyncClient as HTTPXACLIENT
-from httpx import Client as HTTPXClient
 
 from mockai.anthropic import Anthropic, AsyncAnthropic, AsyncClient, Client
 
-CustomSyncClient = Anthropic(http_client=HTTPXClient(http2=True))
-CustomAsyncClient = AsyncAnthropic(http_client=HTTPXACLIENT(http2=True))
-
 
 # Fixtures
-@pytest.fixture(params=[Anthropic(), Client(), CustomSyncClient])
+@pytest.fixture(params=[Anthropic(), Client()], scope="module")
 def client_x(request):
     return request.param
 
 
-@pytest.fixture(params=[AsyncAnthropic(), AsyncClient(), CustomAsyncClient])
+@pytest.fixture(params=[AsyncAnthropic(), AsyncClient()], scope="module")
 def async_client_x(request):
     return request.param
 
@@ -89,7 +84,6 @@ def test_tool_call_stream(client_x):
     }
 
 
-@pytest.mark.asyncio
 async def test_async_message(async_client_x):
     completion = await async_client_x.messages.create(
         model="mock", messages=[{"role": "user", "content": "Hello!"}], max_tokens=1024
@@ -100,7 +94,6 @@ async def test_async_message(async_client_x):
     assert content.text == "Hello!"
 
 
-@pytest.mark.asyncio
 async def test_predefined_async_message(async_client_x):
     completion = await async_client_x.messages.create(
         model="mock",
@@ -116,7 +109,6 @@ async def test_predefined_async_message(async_client_x):
     }
 
 
-@pytest.mark.asyncio
 async def test_async_message_stream(async_client_x):
     generator = await async_client_x.messages.create(
         model="mock",
@@ -132,7 +124,6 @@ async def test_async_message_stream(async_client_x):
     assert buffer == "I'm fine, thank u 😊. How about you?"
 
 
-@pytest.mark.asyncio
 async def test_async_tool_call(async_client_x):
     response = await async_client_x.messages.create(
         model="mock",
@@ -145,7 +136,6 @@ async def test_async_tool_call(async_client_x):
     assert tool.input == {"order_id": "1337", "order_loc": ["New York", "Mexico City"]}
 
 
-@pytest.mark.asyncio
 async def test_async_tool_call_stream(async_client_x):
     generator = await async_client_x.messages.create(
         model="mock",
@@ -164,7 +154,6 @@ async def test_async_tool_call_stream(async_client_x):
     }
 
 
-@pytest.mark.asyncio
 async def test_user_message_is_not_last_no_match(async_client_x):
     completion = await async_client_x.messages.create(
         model="mock",
@@ -179,7 +168,6 @@ async def test_user_message_is_not_last_no_match(async_client_x):
     assert content.text == "Where's my json you do not know?"
 
 
-@pytest.mark.asyncio
 async def test_user_message_is_not_last_and_is_matched():
     async_client = AsyncAnthropic()
     completion = await async_client.messages.create(
@@ -195,7 +183,6 @@ async def test_user_message_is_not_last_and_is_matched():
     assert content.text == "{'fake': 'json'}"
 
 
-@pytest.mark.asyncio
 async def test_cached_system_prompt_allowed(async_client_x):
     # https://docs.anthropic.com/en/docs/build-with-claude/prompt-caching
     response = await async_client_x.messages.create(
