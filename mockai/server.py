@@ -9,7 +9,6 @@ from starlette_compress import CompressMiddleware
 
 from mockai import anthropic, openai
 from mockai.dependencies import ResponseFile, star_watching_responses
-from mockai.gui.router import gui_router
 
 
 @asynccontextmanager
@@ -28,12 +27,11 @@ app.add_middleware(CompressMiddleware)
 
 app.include_router(openai._router)
 app.include_router(anthropic._router)
-app.include_router(gui_router)
 
 
 @app.get("/")
 async def root():
-    return {"message": "Welcome to MockAI", "version": "0.3.0"}
+    return {"message": "Welcome to MockAI", "version": "0.3.1"}
 
 
 @app.post("/{path:path}")
