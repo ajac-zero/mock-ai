@@ -8,7 +8,6 @@ dev-server:
 # Run all tests
 test-all:
     @uv run pytest -q
-    @uv build
 
 # Run tests for OpenAI
 test-openai:
