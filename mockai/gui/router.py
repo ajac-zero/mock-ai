@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 
 from mockai.dependencies import ResponseFile
-from mockai.models.json_file.models import PreDeterminedResponse
+from mockai.models.json_file import PreDeterminedResponse
 
 gui_router = APIRouter(prefix="/api/responses")
 

@@ -7,7 +7,7 @@ import watchfiles
 from fastapi import Depends
 from pydantic_core._pydantic_core import ValidationError
 
-from mockai.models.json_file.models import PreDeterminedResponses
+from mockai.models.json_file import PreDeterminedResponses
 
 logger = logging.getLogger(__name__)
 responses = None
