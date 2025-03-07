@@ -4,7 +4,7 @@ from typing import Annotated, Literal, TypeAlias
 
 from pydantic import BaseModel, Field, model_validator
 
-from mockai.models.common import FunctionOutput, FunctionOutputs
+from .common import FunctionOutput, FunctionOutputs
 
 ResponseType: TypeAlias = Literal["text", "function"]
 

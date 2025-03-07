@@ -1,7 +1,6 @@
-FROM ghcr.io/astral-sh/uv:python3.10-alpine
+FROM python:3.12-slim-bookworm
 
-# Install gcc
-RUN apk add --no-cache gcc musl-dev python3-dev linux-headers
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 # Set up working directory
 WORKDIR /app

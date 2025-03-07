@@ -9,7 +9,7 @@ from uuid import uuid4
 from pydantic import ValidationError
 
 from mockai.dependencies import ResponseFile
-from mockai.models.json_file.models import PreDeterminedResponse
+from mockai.models.json_file import PreDeterminedResponse
 
 _log = logging.getLogger(__name__)
 

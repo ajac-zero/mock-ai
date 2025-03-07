@@ -5,9 +5,7 @@ import subprocess
 import click
 import pydantic
 
-from mockai.models.json_file.models import PreDeterminedResponses
-
-dir_path = os.path.dirname(os.path.realpath(__file__))
+from mockai.models.json_file import PreDeterminedResponses
 
 
 @click.group()
@@ -41,17 +39,4 @@ def server(responses, embedding_size, host, port):
     os.environ["MOCKAI_EMBEDDING_SIZE"] = str(embedding_size)
 
     print("Starting MockAI server ...")
-    subprocess.run(
-        [
-            "uvicorn",
-            "--app-dir",
-            f"{dir_path}",
-            "main:app",
-            "--host",
-            host,
-            "--port",
-            str(port),
-            "--log-config",
-            f"{dir_path}/logging_conf.yaml",
-        ], check=False
-    )
+    subprocess.run(["uvicorn", "mockai.main:app", "--host", host, "--port", str(port)])

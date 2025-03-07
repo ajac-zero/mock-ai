@@ -19,7 +19,7 @@ class Content(BaseModel):
             if self.image_url is None:
                 raise ValueError("image_url field required")
             url = self.image_url.get("url", None)
-            if isinstance(url, str):
+            if not isinstance(url, str):
                 raise ValueError('image_url dict must contain "url" key of type string')
         return self
 
