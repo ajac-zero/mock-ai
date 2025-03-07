@@ -3,7 +3,7 @@ _default:
 
 # Start development server with hot-reload
 dev-server:
-    @uv run uvicorn main:app --app-dir ./mockai --port 8100 --reload
+    @uv run uvicorn mockai.server:app --port 8100 --reload
 
 # Run all tests
 test-all:
