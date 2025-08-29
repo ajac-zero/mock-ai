@@ -67,7 +67,7 @@ class PreDeterminedResponse(BaseModel):
     def verify_structure(self) -> PreDeterminedResponse:
         if self.type == "function":
             try:
-                if isinstance(self.output, list):
+                if isinstance(self.output, FunctionOutputs):
                     checks = [isinstance(f, FunctionOutput) for f in self.output]
                     assert all(checks)
                 else:
